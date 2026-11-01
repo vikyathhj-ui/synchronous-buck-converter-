@@ -1,0 +1,6 @@
+{
+ "writes": 120,
+ "scoreboard_periods": 4084,
+ "scoreboard_mismatches": 0,
+ "source": "tb/test_buck_ctrl.py::test_random_registers (cocotb, Icarus Verilog)"
+}

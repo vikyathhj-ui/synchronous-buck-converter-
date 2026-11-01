@@ -5,3 +5,31 @@
 - ngspice `d_cosim` loads a shared library built by `vlnggen` (Verilator). Verilog vector ports appear
   as separate digital nodes, most-significant bit first.
 - Digital nodes need `adc_bridge` / `dac_bridge` to connect to analog nodes.
+
+## Phase 1
+- The digital loop's plant is the *sampled* model, not the averaged Gvd(s). With trailing-edge PWM and
+  sampling at the period start, the duty perturbation acts at D*Ts and propagates for (1-D)*Ts. Above
+  about 50 kHz the sampled phase falls well below the averaged phase (bode.png, left).
+- A PID designed in the z-domain can be solved directly. Fixing ki = alpha*kp makes C(z0) linear in
+  (kp, kd), so the gain and phase conditions give a 2x2 linear system.
+- A limit cycle needs a missing output level inside the ADC zero bin. A 6-bit DPWM (52 mV step) limit
+  cycles at most loads; the 9-bit hybrid (6.4 mV step) at none, as long as the delay line is accurate.
+- Delay-line error turns into DPWM DNL at every coarse boundary: 7*(1 - tap_scale) LSB.
+- A large kd on a quantised error gives one-period duty kicks every time the ADC code changes.
+- A bug I nearly reported as a result: rescaling the gains for a 6-bit DPWM made ki round to 0 at
+  2 fractional bits. That removed the integrator and with it any chance of a limit cycle.
+- Margin at nominal is not robustness. 50 deg at nominal fell to 28 deg at an L/C -20 % corner because
+  the gain above resonance scales with 1/(LC). Getting the worst case to 45 deg meant lowering fc from 50 to
+  30 kHz. That traded load-step speed and line rejection for margin.
+
+## Phase 2
+- Writing the golden model first and making the RTL match it bit for bit, every period, catches
+  timing mistakes that a "does the output look right" test would miss.
+- A behavioural model can do things hardware cannot. Updating VREF and sampling at the same instant,
+  and sampling the valley at the exact switching edge, both had to be moved for the RTL.
+- A consecutive-event fault counter can be defeated by the protection itself. Suppressing a pulse
+  clears the condition for one period, so a leaky score is needed.
+- k-induction proved the safety properties in under a second; mutating the RTL (removing a clamp)
+  is the cheap way to show the properties actually constrain something.
+- A 15.625 ns clock is an odd number of picoseconds, so the simulator needs fs precision for a 50 %
+  duty clock.

@@ -1,0 +1,63 @@
+name: ci
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  checks:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+
+      # iverilog, verilator, yosys, sby, yices
+      - uses: YosysHQ/setup-oss-cad-suite@v3
+
+      # after the CAD suite so this python3 comes first on PATH
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Python packages
+        run: pip install numpy scipy matplotlib control pyyaml pytest "cocotb==2.0.1" cocotb-coverage
+
+      - name: Tool versions
+        run: |
+          iverilog -V 2>&1 | head -1
+          verilator --version
+          yosys -V
+          python3 -c "import cocotb; print('cocotb', cocotb.__version__)"
+
+      - name: Lint (Verilator -Wall)
+        run: make lint
+
+      - name: Model tests
+        run: make test-model
+
+      - name: Formal (SymbiYosys k-induction)
+        run: make formal
+
+      # The CAD suite's iverilog/vvp are wrapper scripts that set PYTHONHOME to the suite's bundled
+      # Python, so cocotb (installed in setup-python) cannot start inside them ("No module named
+      # 'pygpi'"). Use Ubuntu's Icarus Verilog for cocotb, with setup-python first on PATH.
+      - name: Icarus Verilog (Ubuntu package) for cocotb
+        run: sudo apt-get update && sudo apt-get install -y iverilog
+
+      - name: Controller closed-loop tests (cocotb, QUICK)
+        run: |
+          export PATH="$pythonLocation/bin:/usr/bin:$PATH"
+          unset PYTHONHOME
+          which iverilog vvp python3
+          iverilog -V 2>&1 | head -1
+          make tb-quick
+
+      - name: Fail on cocotb failures
+        run: |
+          python3 - <<'PY'
+          import sys, xml.etree.ElementTree as ET
+          r = ET.parse("tb/results.xml").getroot()
+          bad = [c.get("name") for c in r.iter("testcase") if c.find("failure") is not None or c.find("error") is not None]
+          print("failed:", bad)
+          sys.exit(1 if bad else 0)
+          PY
