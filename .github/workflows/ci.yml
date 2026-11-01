@@ -38,8 +38,12 @@ jobs:
       - name: Formal (SymbiYosys k-induction)
         run: make formal
 
+      # The CAD suite exports PYTHONHOME for its bundled Python; cocotb embeds the setup-python
+      # interpreter instead, which then cannot find its standard library / pygpi. Unset it here.
       - name: Controller closed-loop tests (cocotb, QUICK)
-        run: make tb-quick
+        run: |
+          unset PYTHONHOME
+          make tb-quick
 
       - name: Fail on cocotb failures
         run: |
