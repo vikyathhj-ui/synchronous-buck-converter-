@@ -38,11 +38,18 @@ jobs:
       - name: Formal (SymbiYosys k-induction)
         run: make formal
 
-      # The CAD suite exports PYTHONHOME for its bundled Python; cocotb embeds the setup-python
-      # interpreter instead, which then cannot find its standard library / pygpi. Unset it here.
+      # The CAD suite's iverilog/vvp are wrapper scripts that set PYTHONHOME to the suite's bundled
+      # Python, so cocotb (installed in setup-python) cannot start inside them ("No module named
+      # 'pygpi'"). Use Ubuntu's Icarus Verilog for cocotb, with setup-python first on PATH.
+      - name: Icarus Verilog (Ubuntu package) for cocotb
+        run: sudo apt-get update && sudo apt-get install -y iverilog
+
       - name: Controller closed-loop tests (cocotb, QUICK)
         run: |
+          export PATH="$pythonLocation/bin:/usr/bin:$PATH"
           unset PYTHONHOME
+          which iverilog vvp python3
+          iverilog -V 2>&1 | head -1
           make tb-quick
 
       - name: Fail on cocotb failures
