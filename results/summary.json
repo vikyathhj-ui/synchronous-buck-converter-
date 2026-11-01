@@ -75,8 +75,8 @@
   },
   "design_target": {
    "value": {
-    "fc": 50000.0,
-    "pm": 50.0,
+    "fc": 30000.0,
+    "pm": 60.0,
     "fi_ratio": 5.0,
     "io": 0.15
    },
@@ -84,11 +84,18 @@
    "kind": "model",
    "source": "model/phase1.py"
   },
+  "pm_spec_all_cases": {
+   "value": 45.0,
+   "unit": "deg",
+   "kind": "analysis",
+   "source": "model/phase1.py",
+   "note": "requirement, not a result"
+  },
   "gains_float": {
    "value": {
-    "kp": 4.451525165390309,
-    "ki": 0.27969757513720567,
-    "kd": 68.23996459455878
+    "kp": 2.6952916183670195,
+    "ki": 0.10161010017052767,
+    "kd": 35.35047946217232
    },
    "unit": "DPWM LSB / ADC LSB",
    "kind": "model",
@@ -98,113 +105,113 @@
    "value": [
     {
      "frac": 0,
-     "kp": 4.0,
+     "kp": 3.0,
      "ki": 0.0,
-     "kd": 68.0,
-     "fc": 51080.070225126285,
-     "pm": 51.468040358280774,
+     "kd": 35.0,
+     "fc": 31505.68825592613,
+     "pm": 59.069433264484985,
      "n_cross": 1,
      "max_eig": 1.0
     },
     {
      "frac": 1,
-     "kp": 4.5,
-     "ki": 0.5,
-     "kd": 68.0,
-     "fc": 48554.20717498063,
-     "pm": 49.69709325522285,
+     "kp": 2.5,
+     "ki": 0.0,
+     "kd": 35.5,
+     "fc": 31142.8486501234,
+     "pm": 62.91625207045547,
      "n_cross": 1,
-     "max_eig": 0.9623228376514364
+     "max_eig": 1.0
     },
     {
      "frac": 2,
-     "kp": 4.5,
-     "ki": 0.25,
-     "kd": 68.25,
-     "fc": 50211.87969948454,
-     "pm": 49.87700104002863,
+     "kp": 2.75,
+     "ki": 0.0,
+     "kd": 35.25,
+     "fc": 31316.281127079343,
+     "pm": 60.975022594461905,
      "n_cross": 1,
-     "max_eig": 0.9575257418355511
+     "max_eig": 1.0
     },
     {
      "frac": 3,
-     "kp": 4.5,
-     "ki": 0.25,
-     "kd": 68.25,
-     "fc": 50211.87969948454,
-     "pm": 49.87700104002863,
+     "kp": 2.75,
+     "ki": 0.125,
+     "kd": 35.375,
+     "fc": 29777.355268062485,
+     "pm": 59.15001578513122,
      "n_cross": 1,
-     "max_eig": 0.9575257418355511
+     "max_eig": 0.9527707621954861
     },
     {
      "frac": 4,
-     "kp": 4.4375,
-     "ki": 0.25,
-     "kd": 68.25,
-     "fc": 50165.089433182075,
-     "pm": 50.05880019764945,
+     "kp": 2.6875,
+     "ki": 0.125,
+     "kd": 35.375,
+     "fc": 29678.320079633555,
+     "pm": 59.65842523037173,
      "n_cross": 1,
-     "max_eig": 0.9581273111996312
+     "max_eig": 0.9502826855798122
     },
     {
      "frac": 5,
-     "kp": 4.4375,
-     "ki": 0.28125,
-     "kd": 68.25,
-     "fc": 49986.814532335506,
-     "pm": 50.03782658669732,
+     "kp": 2.6875,
+     "ki": 0.09375,
+     "kd": 35.34375,
+     "fc": 30091.22242753358,
+     "pm": 60.19085258403348,
      "n_cross": 1,
-     "max_eig": 0.9587347058035477
+     "max_eig": 0.9696618752164018
     },
     {
      "frac": 6,
-     "kp": 4.453125,
-     "ki": 0.28125,
-     "kd": 68.234375,
-     "fc": 49988.760644959635,
-     "pm": 49.995420752691444,
+     "kp": 2.6875,
+     "ki": 0.109375,
+     "kd": 35.34375,
+     "fc": 29878.43441913972,
+     "pm": 59.928132289459484,
      "n_cross": 1,
-     "max_eig": 0.9585741777217529
+     "max_eig": 0.9613209165820261
     },
     {
      "frac": 7,
-     "kp": 4.453125,
-     "ki": 0.28125,
-     "kd": 68.2421875,
-     "fc": 49993.72892535711,
-     "pm": 49.993717827115375,
+     "kp": 2.6953125,
+     "ki": 0.1015625,
+     "kd": 35.3515625,
+     "fc": 30001.26242646931,
+     "pm": 60.0009643009723,
      "n_cross": 1,
-     "max_eig": 0.9585797230016564
+     "max_eig": 0.9658711856707607
     },
     {
      "frac": 8,
-     "kp": 4.453125,
-     "ki": 0.28125,
-     "kd": 68.23828125,
-     "fc": 49991.24478618658,
-     "pm": 49.99456932647496,
+     "kp": 2.6953125,
+     "ki": 0.1015625,
+     "kd": 35.3515625,
+     "fc": 30001.26242646931,
+     "pm": 60.0009643009723,
      "n_cross": 1,
-     "max_eig": 0.9585769505947355
+     "max_eig": 0.9658711856707607
     },
     {
      "frac": 9,
-     "kp": 4.451171875,
-     "ki": 0.279296875,
-     "kd": 68.240234375,
-     "fc": 50002.20339704915,
-     "pm": 50.00124053056234,
+     "kp": 2.6953125,
+     "ki": 0.1015625,
+     "kd": 35.349609375,
+     "fc": 30000.21778819685,
+     "pm": 60.000358445240465,
      "n_cross": 1,
-     "max_eig": 0.9585589701648222
+     "max_eig": 0.9658724704834994
     },
     {
      "frac": 10,
-     "kp": 4.451171875,
-     "ki": 0.279296875,
-     "kd": 68.240234375,
-     "fc": 50002.20339704915,
-     "pm": 50.00124053056234,
+     "kp": 2.6953125,
+     "ki": 0.1015625,
+     "kd": 35.3505859375,
+     "fc": 30000.740106018846,
+     "pm": 60.00066139608623,
      "n_cross": 1,
-     "max_eig": 0.9585589701648222
+     "max_eig": 0.9658718281078248
     }
    ],
    "unit": "-",
@@ -212,18 +219,18 @@
    "source": "model/phase1.py"
   },
   "quant_frac_bits": {
-   "value": 2,
+   "value": 5,
    "unit": "bits",
    "kind": "model",
    "source": "model/phase1.py",
-   "note": "smallest F with |dPM|<1 deg, |dfc|<2 %, ki>0, one crossover"
+   "note": "smallest F with |dPM|<1 deg, |dfc|<2 %, one crossover, every coefficient within 10 %"
   },
   "gains_int": {
    "value": {
-    "kp": 18,
-    "ki": 1,
-    "kd": 273,
-    "frac": 2
+    "kp": 86,
+    "ki": 3,
+    "kd": 1131,
+    "frac": 5
    },
    "unit": "Q(frac) integers",
    "kind": "model",
@@ -231,7 +238,7 @@
   },
   "fc": {
    "value": [
-    50211.87747225034
+    30091.219799045793
    ],
    "unit": "Hz",
    "kind": "model",
@@ -239,7 +246,7 @@
   },
   "pm": {
    "value": [
-    49.87701299197127
+    60.190854859737954
    ],
    "unit": "deg",
    "kind": "model",
@@ -247,7 +254,7 @@
   },
   "gm": {
    "value": [
-    8.62153981782978
+    14.213159948652073
    ],
    "unit": "dB",
    "kind": "model",
@@ -255,21 +262,21 @@
   },
   "gm_phase_crossover": {
    "value": [
-    124532.13040365328
+    123726.27755879967
    ],
    "unit": "Hz",
    "kind": "model",
    "source": "model/phase1.py"
   },
   "cl_max_pole_mag": {
-   "value": 0.9575257418355511,
+   "value": 0.9696618752164018,
    "unit": "-",
    "kind": "model",
    "source": "model/phase1.py",
    "note": "sampled closed loop incl. compute delay; < 1 = stable"
   },
   "ki_normalised_worst": {
-   "value": 0.17578125,
+   "value": 0.06591796875,
    "unit": "-",
    "kind": "model",
    "source": "model/phase1.py",
@@ -283,34 +290,34 @@
    "note": "VIN{3.0,3.3,3.6} x L{12,15,18u} x C{8,10,12u} x ron{0.25,0.5,1.0} x io{15m,150m}"
   },
   "robust_pm_min": {
-   "value": 28.329753003972343,
+   "value": 48.68484303935921,
    "unit": "deg",
    "kind": "model",
    "source": "model/phase1.py"
   },
   "robust_pm_max": {
-   "value": 66.52282755851934,
+   "value": 81.95036388841424,
    "unit": "deg",
    "kind": "model",
    "source": "model/phase1.py"
   },
   "robust_gm_min": {
-   "value": 4.016486039094519,
+   "value": 9.618546217793227,
    "unit": "dB",
    "kind": "model",
    "source": "model/phase1.py"
   },
   "robust_fc_range": {
    "value": [
-    31537.703731954698,
-    83163.3995701962
+    19240.84595125023,
+    47903.864248854974
    ],
    "unit": "Hz",
    "kind": "model",
    "source": "model/phase1.py"
   },
   "robust_max_pole_mag": {
-   "value": 0.9644495519068202,
+   "value": 0.9733702757457761,
    "unit": "-",
    "kind": "model",
    "source": "model/phase1.py"
@@ -320,6 +327,19 @@
    "unit": "-",
    "kind": "model",
    "source": "model/phase1.py"
+  },
+  "robust_single_crossover_all": {
+   "value": true,
+   "unit": "-",
+   "kind": "model",
+   "source": "model/phase1.py"
+  },
+  "robust_pm_meets_spec_all": {
+   "value": true,
+   "unit": "-",
+   "kind": "model",
+   "source": "model/phase1.py",
+   "note": "PM >= 45.0 deg in every case"
   },
   "robust_worst_case": {
    "value": {
@@ -335,8 +355,8 @@
   },
   "pm_range_vin_io_only": {
    "value": [
-    48.22164815174946,
-    51.90652411637694
+    59.590562518917125,
+    61.07362043019151
    ],
    "unit": "deg",
    "kind": "model",
@@ -345,8 +365,8 @@
   },
   "pm_range_lc_only": {
    "value": [
-    33.51169501980365,
-    56.674715187590294
+    54.566625645265646,
+    63.53624675540485
    ],
    "unit": "deg",
    "kind": "model",
@@ -367,26 +387,26 @@
    "source": "model/phase1.py"
   },
   "loadstep_undershoot": {
-   "value": 0.049177009723231135,
+   "value": 0.065679469089029,
    "unit": "V",
    "kind": "model",
    "source": "model/phase1.py",
    "note": "switched plant, step at a period boundary (faster than 100 ns)"
   },
   "loadstep_recovery_1pct": {
-   "value": 1.5426635742187434e-05,
+   "value": 2.5578124999999993e-05,
    "unit": "s",
    "kind": "model",
    "source": "model/phase1.py"
   },
   "loadstep_down_overshoot": {
-   "value": 0.04665536781814539,
+   "value": 0.06580282239706214,
    "unit": "V",
    "kind": "model",
    "source": "model/phase1.py"
   },
   "loadstep_down_recovery_1pct": {
-   "value": 1.6970703124999896e-05,
+   "value": 2.490283203124971e-05,
    "unit": "s",
    "kind": "model",
    "source": "model/phase1.py"
@@ -398,27 +418,27 @@
    "source": "model/phase1.py"
   },
   "loadstep_undershoot_linear": {
-   "value": 0.04673095626957094,
+   "value": 0.06481996577971619,
    "unit": "V",
    "kind": "model",
    "source": "model/phase1.py",
    "note": "linear sampled model, no quantisation, current-source load"
   },
   "loadstep_undershoot_switched_sampled": {
-   "value": 0.04881114299415823,
+   "value": 0.06529611922475231,
    "unit": "V",
    "kind": "model",
    "source": "model/phase1.py",
    "note": "same run as loadstep_undershoot, sampled instants only (compare with linear)"
   },
   "startup_noload_overshoot_pct": {
-   "value": 0.3284298019861446,
+   "value": -0.00727061913420436,
    "unit": "%",
    "kind": "model",
    "source": "model/phase1.py"
   },
   "startup_noload_il_peak": {
-   "value": 0.07334482803288085,
+   "value": 0.054945907913783364,
    "unit": "A",
    "kind": "model",
    "source": "model/phase1.py"
@@ -436,13 +456,13 @@
    "source": "model/phase1.py"
   },
   "startup_fullload_overshoot_pct": {
-   "value": 0.3276315970182445,
+   "value": -0.0037937704253273217,
    "unit": "%",
    "kind": "model",
    "source": "model/phase1.py"
   },
   "startup_fullload_il_peak": {
-   "value": 0.2208426599727598,
+   "value": 0.2047456132501475,
    "unit": "A",
    "kind": "model",
    "source": "model/phase1.py"
@@ -460,28 +480,28 @@
    "source": "model/phase1.py"
   },
   "linestep_up_dev_max": {
-   "value": 0.05923504985071104,
+   "value": 0.17410022099714473,
    "unit": "V",
    "kind": "model",
    "source": "model/phase1.py",
    "note": "3.0 -> 3.6 V in 10 us, 150 mA"
   },
   "linestep_dn_dev_min": {
-   "value": -0.06351155180175283,
+   "value": -0.1690353110264462,
    "unit": "V",
    "kind": "model",
    "source": "model/phase1.py",
    "note": "3.6 -> 3.0 V in 10 us, 150 mA"
   },
   "ripple_vout_pp_fullload": {
-   "value": 0.0007829024701497822,
+   "value": 0.0007829024701504483,
    "unit": "V",
    "kind": "model",
    "source": "model/phase1.py",
    "note": "VIN 3.3 V, 150 mA resistive, steady state"
   },
   "ripple_il_pp_fullload": {
-   "value": 0.05385658405206559,
+   "value": 0.05385658405206667,
    "unit": "A",
    "kind": "model",
    "source": "model/phase1.py"
@@ -498,7 +518,7 @@
      "adc_codes": [
       0.0
      ],
-     "v_sample_pp": 1.443711816762061e-11
+     "v_sample_pp": 5.243538936383629e-10
     },
     {
      "vin": 3.0,
@@ -510,19 +530,19 @@
      "adc_codes": [
       0.0
      ],
-     "v_sample_pp": 3.497646616779093e-12
+     "v_sample_pp": 3.879296883724237e-11
     },
     {
      "vin": 3.0,
      "io": 0.15,
      "n_duty_codes": 1,
      "duty_codes": [
-      323
+      322
      ],
      "adc_codes": [
       0.0
      ],
-     "v_sample_pp": 3.8324898810060404e-13
+     "v_sample_pp": 2.6267876762631204e-13
     },
     {
      "vin": 3.3,
@@ -534,7 +554,7 @@
      "adc_codes": [
       0.0
      ],
-     "v_sample_pp": 1.720334985577665e-11
+     "v_sample_pp": 2.1917623271860975e-10
     },
     {
      "vin": 3.3,
@@ -546,7 +566,7 @@
      "adc_codes": [
       0.0
      ],
-     "v_sample_pp": 9.725553695716371e-13
+     "v_sample_pp": 7.541078872463913e-12
     },
     {
      "vin": 3.3,
@@ -558,7 +578,7 @@
      "adc_codes": [
       0.0
      ],
-     "v_sample_pp": 2.5934809855243657e-13
+     "v_sample_pp": 8.517631044924201e-13
     },
     {
      "vin": 3.6,
@@ -570,7 +590,7 @@
      "adc_codes": [
       0.0
      ],
-     "v_sample_pp": 7.265077428542099e-12
+     "v_sample_pp": 2.7210456110537962e-11
     },
     {
      "vin": 3.6,
@@ -582,7 +602,7 @@
      "adc_codes": [
       0.0
      ],
-     "v_sample_pp": 2.537969834293108e-12
+     "v_sample_pp": 3.979261364861486e-12
     },
     {
      "vin": 3.6,
@@ -594,7 +614,7 @@
      "adc_codes": [
       0.0
      ],
-     "v_sample_pp": 6.055156376305604e-13
+     "v_sample_pp": 3.0795366257052592e-12
     }
    ],
    "unit": "-",
@@ -616,9 +636,9 @@
   },
   "counterexample_6bit_gains_int": {
    "value": {
-    "kp": 142,
-    "ki": 9,
-    "kd": 2184,
+    "kp": 86,
+    "ki": 3,
+    "kd": 1131,
     "frac": 8
    },
    "unit": "Q(frac)",
@@ -626,7 +646,7 @@
    "source": "model/phase1.py"
   },
   "counterexample_6bit_loads_with_limit_cycle": {
-   "value": 13,
+   "value": 12,
    "unit": "of 15 loads 10..150 mA",
    "kind": "model",
    "source": "model/phase1.py"
@@ -635,14 +655,12 @@
    "value": {
     "io": 0.019999999999999997,
     "duty_codes": [
-     26,
-     27,
+     31,
      35,
      36,
-     44,
-     45
+     40
     ],
-    "v_sample_pp": 0.014076120709728412
+    "v_sample_pp": 0.01533676202477996
    },
    "unit": "-",
    "kind": "model",
@@ -654,9 +672,9 @@
      "tap_scale": 0.6,
      "dnl_max": 2.8000000000000385,
      "dnl_min": -0.40000000000009384,
-     "loads_with_limit_cycle": 4,
+     "loads_with_limit_cycle": 3,
      "n_loads": 15,
-     "v_sample_pp_max": 0.012631068342838114
+     "v_sample_pp_max": 0.01353255972301115
     },
     {
      "tap_scale": 0.8,
@@ -664,7 +682,7 @@
      "dnl_min": -0.20000000000008888,
      "loads_with_limit_cycle": 1,
      "n_loads": 15,
-     "v_sample_pp_max": 0.011132148940604436
+     "v_sample_pp_max": 0.011776696954764132
     },
     {
      "tap_scale": 1.0,
@@ -672,23 +690,23 @@
      "dnl_min": -8.404388296412435e-14,
      "loads_with_limit_cycle": 0,
      "n_loads": 15,
-     "v_sample_pp_max": 2.220446049250313e-15
+     "v_sample_pp_max": 3.3306690738754696e-15
     },
     {
      "tap_scale": 1.2,
      "dnl_max": 0.20000000000002927,
      "dnl_min": -1.4000000000000097,
-     "loads_with_limit_cycle": 1,
+     "loads_with_limit_cycle": 0,
      "n_loads": 15,
-     "v_sample_pp_max": 0.010166233716105921
+     "v_sample_pp_max": 5.10702591327572e-15
     },
     {
      "tap_scale": 1.4,
      "dnl_max": 0.4000000000000341,
      "dnl_min": -2.800000000000044,
-     "loads_with_limit_cycle": 4,
+     "loads_with_limit_cycle": 3,
      "n_loads": 15,
-     "v_sample_pp_max": 0.010434382804450193
+     "v_sample_pp_max": 0.011181407622407491
     }
    ],
    "unit": "-",
@@ -697,26 +715,26 @@
    "note": "DNL from ideal-tap model; limit cycle = >1 duty code in 2.5 ms steady state"
   },
   "overload_valley_max": {
-   "value": 0.41310850713939856,
+   "value": 0.373064043697322,
    "unit": "A",
    "kind": "model",
    "source": "model/phase1.py",
    "note": "0.365 A load for 200 us, ILIM 0.25 A"
   },
   "overload_peak_max": {
-   "value": 0.41705497230024685,
+   "value": 0.3821649728835811,
    "unit": "A",
    "kind": "model",
    "source": "model/phase1.py"
   },
   "overload_trips": {
-   "value": 119,
+   "value": 116,
    "unit": "-",
    "kind": "model",
    "source": "model/phase1.py"
   },
   "overload_vout_min": {
-   "value": 0.23936732170314004,
+   "value": 0.04938208290075915,
    "unit": "V",
    "kind": "model",
    "source": "model/phase1.py"

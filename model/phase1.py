@@ -23,7 +23,8 @@ ROOT = pathlib.Path(__file__).resolve().parents[1]
 PLOTS = ROOT / "results" / "plots" / "phase1"
 SRC = "model/phase1.py"
 
-DESIGN = dict(fc=50e3, pm=50.0, fi_ratio=5.0, io=0.15)
+DESIGN = dict(fc=30e3, pm=60.0, fi_ratio=5.0, io=0.15)
+PM_SPEC = 45.0   # must hold in EVERY robustness case (user requirement, DECISIONS D11)
 VREF_CODE, VREF_LSB, ILIM = 180, 0.010, 0.25
 VSET = VREF_CODE * VREF_LSB
 
@@ -82,6 +83,7 @@ def main():
     # ---------------- 2. z-domain PID design ----------------
     g = design(b, DESIGN["io"], adc, dp, DESIGN["fc"], DESIGN["pm"], DESIGN["fi_ratio"])
     put("design_target", DESIGN, "-", "model")
+    put("pm_spec_all_cases", PM_SPEC, "deg", "analysis", "requirement, not a result")
     put("gains_float", {"kp": g.kp, "ki": g.ki, "kd": g.kd}, "DPWM LSB / ADC LSB")
 
     # ---------------- 3. coefficient quantisation ----------------
@@ -97,10 +99,11 @@ def main():
                           n_cross=len(mq["crossovers"]), max_eig=eig))
     fc0, pm0 = m0["crossovers"][-1], min(m0["pm"])
     ok = [r for r in qrows if r["ki"] > 0 and r["n_cross"] == 1 and abs(r["pm"] - pm0) < 1.0
-          and abs(r["fc"] / fc0 - 1) < 0.02]
+          and abs(r["fc"] / fc0 - 1) < 0.02
+          and all(abs(r[c] / getattr(g, c) - 1) < 0.10 for c in ("kp", "ki", "kd"))]
     F = ok[0]["frac"]
     put("quant_study", qrows, "-", "model")
-    put("quant_frac_bits", F, "bits", "model", "smallest F with |dPM|<1 deg, |dfc|<2 %, ki>0, one crossover")
+    put("quant_frac_bits", F, "bits", "model", "smallest F with |dPM|<1 deg, |dfc|<2 %, one crossover, every coefficient within 10 %")
     gq = g.quantized(F)
     gi = g.ints(F)
     put("gains_int", {"kp": gi[0], "ki": gi[1], "kd": gi[2], "frac": F}, "Q(frac) integers")
@@ -135,6 +138,8 @@ def main():
     put("robust_fc_range", [min(fcs), max(fcs)], "Hz")
     put("robust_max_pole_mag", max(x["max_eig"] for x in grid), "-")
     put("robust_all_stable", bool(all(x["max_eig"] < 1 for x in grid)), "-")
+    put("robust_single_crossover_all", bool(all(len(x["fc"]) == 1 for x in grid)), "-")
+    put("robust_pm_meets_spec_all", bool(min(pms) >= PM_SPEC), "-", note=f"PM >= {PM_SPEC} deg in every case")
     put("robust_worst_case", {k: worst[k] for k in ("vin", "L", "C", "ron", "io")}, "-")
     nomlc = [x for x in grid if x["L"] == b.L and x["C"] == b.C and x["ron"] == b.ron]
     put("pm_range_vin_io_only", [min(min(x["pm"]) for x in nomlc), max(min(x["pm"]) for x in nomlc)], "deg",

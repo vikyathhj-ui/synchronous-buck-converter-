@@ -18,3 +18,6 @@
 - A large kd on a quantised error gives one-period duty kicks every time the ADC code changes.
 - A bug I nearly reported as a result: rescaling the gains for a 6-bit DPWM made ki round to 0 at
   2 fractional bits. That removed the integrator and with it any chance of a limit cycle.
+- Margin at nominal is not robustness. 50 deg at nominal fell to 28 deg at an L/C -20 % corner because
+  the gain above resonance scales with 1/(LC). Getting the worst case to 45 deg meant lowering fc from 50 to
+  30 kHz. That traded load-step speed and line rejection for margin.

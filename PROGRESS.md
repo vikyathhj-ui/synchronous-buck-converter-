@@ -13,9 +13,10 @@
   design, margins, bit-exact `FixedPid`), `model/sim.py` (closed-loop golden model), `model/phase1.py`
   (all numbers -> `results/summary.json["phase1"]`, plots -> `results/plots/phase1/`).
 - `docs/CONTROL.md`: tables auto-filled by `scripts/update_docs.py`. `make all` = model + tests + docs.
-- Open questions for the user (CONTROL.md section 8): L/C tolerance corner PM 28 deg; derivative kicks
-  (kd = 68 LSB/LSB); start-up peak iL 221 mA vs the 250 mA limit; valley limit sampled once per
-  period; window-ADC common mode (feedback divider).
+- User required PM >= 45 deg at every robustness corner -> redesigned to fc 30 kHz / PM 60 deg, Q5
+  (DECISIONS D11); worst case 48.7 deg over 162 cases.
+- Open items (CONTROL.md section 8): derivative kicks (kd = 35); valley limit sampled once per period;
+  window-ADC common mode (feedback divider); line step about +/-170 mV (VIN feedforward would need a VIN sensor).
 
 ## Phase 2 — Controller RTL (NEXT, only after the user approves the Phase 1 gate)
 - RTL must match `model/controller.py: FixedPid` and the timing in `model/sim.py` (DECISIONS D10).

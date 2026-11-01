@@ -1,5 +1,6 @@
 """Model unit tests: python3 -m pytest model/tests -q"""
 from dataclasses import replace
+from itertools import product
 
 import numpy as np
 
@@ -48,28 +49,40 @@ def test_adc_mid_tread_and_saturation():
     assert ADC.code(1.0) == 7 and ADC.code(-1.0) == -8
 
 
+G = design(B, 0.15, ADC, DP, 30e3, 60.0, 5.0)
+F = 5
+
+
 def test_design_meets_targets_and_is_stable():
-    g = design(B, 0.15, ADC, DP, 50e3, 50.0, 5.0).quantized(2)
+    g = G.quantized(F)
     m = margins(B, 0.15, g, ADC, DP, n=4000)
     assert len(m["crossovers"]) == 1
-    assert abs(m["crossovers"][0] / 50e3 - 1) < 0.02
-    assert m["pm"][0] >= 45.0
+    assert abs(m["crossovers"][0] / 30e3 - 1) < 0.02
+    assert m["pm"][0] >= 59.0
     assert np.abs(np.linalg.eigvals(closed_loop_matrix(B, 0.15, g, ADC, DP)[0])).max() < 1
 
 
+def test_pm_at_least_45_at_tolerance_corners():
+    g = G.quantized(F)
+    for vin, L, C, ron, io in product((3.0, 3.6), (12e-6, 18e-6), (8e-6, 12e-6), (0.25, 1.0), (0.015, 0.15)):
+        m = margins(replace(B, vin=vin, L=L, C=C, ron=ron), io, g, ADC, DP, n=2500)
+        assert len(m["crossovers"]) == 1
+        assert min(m["pm"]) >= 45.0, (vin, L, C, ron, io, m["pm"])
+
+
 def test_fixed_pid_integrator_bounded():
-    pid = FixedPid(18, 1, 273, 2, 0, 511)
+    kp, ki, kd = G.ints(F)
+    pid = FixedPid(kp, ki, kd, F, 0, 511)
     for _ in range(5000):
         u = pid.step(7)
-        assert 0 <= u <= 511 and pid.acc <= 511 << 2
+        assert 0 <= u <= 511 and pid.acc <= 511 << F
     for _ in range(5000):
         u = pid.step(-8)
         assert 0 <= u <= 511 and pid.acc >= 0
 
 
 def test_closed_loop_regulates_without_limit_cycle():
-    g = design(B, 0.15, ADC, DP, 50e3, 50.0, 5.0)
     b = replace(B, g_load=0.075 / 1.8)
-    r = simulate(b, DP, ADC, g.ints(2), 2, n=4000)
+    r = simulate(b, DP, ADC, G.ints(F), F, n=4000)
     assert len(np.unique(r.d[2500:])) == 1
     assert np.all(r.e[2500:] == 0)

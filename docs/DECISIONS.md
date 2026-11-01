@@ -32,11 +32,11 @@ Every period the accumulator adds the target code; each time it passes 1000 (the
 periods), VREF is raised by one code. The ramp therefore takes exactly 1000 periods (1 ms) for any
 target, with no divider. Model: `startup_*_vref_ramp_time`.
 
-## D8 — PID design point: fc 50 kHz, PM 50 deg, integral zero fc/5 (Phase 1)
+## D8 — (superseded by D11) PID design point: fc 50 kHz, PM 50 deg, integral zero fc/5 (Phase 1)
 The sweep of 45–55 deg gave the same undershoot; recovery grows with PM. 60 deg was not reachable
 with a single crossover (conditionally stable design), so it was rejected. Details in docs/CONTROL.md section 4.
 
-## D9 — Coefficients in Q2 (Phase 1)
+## D9 — (superseded by D11) Coefficients in Q2 (Phase 1)
 Q2 is the smallest number of fractional bits for which PM moves less than 1 deg and fc less than 2 %
 (rule and table in docs/CONTROL.md section 5). Integer gains kp = 18, ki = 1, kd = 273 (x 2^-2).
 The output is rounded by (s + 2) >>> 2, and the integrator is clamped to [0, 511] << 2.
@@ -46,3 +46,13 @@ Per period: sample the ADC and the valley comparator at the period start. If the
 over the limit, suppress THIS period's HS pulse and hold the integrator; otherwise apply the duty
 computed in the previous period. The PID then computes the next duty. `model/sim.py` is the golden
 model, and the Phase 2 RTL must match `FixedPid` bit for bit.
+
+## D11 — Robust PID: fc 30 kHz, PM 60 deg, integral zero fc/5, Q5 (Phase 1, user requirement)
+The user does not want the phase margin to drop below spec at any tolerance corner. The new
+requirement is PM >= 45 deg in all 162 robustness cases (VIN, L/C +/-20 %, Ron, load). The 50 kHz design
+reached 28.3 deg at the L/C -20 % corner. A search found that fc <= 35 kHz is needed; 30 kHz / 60 deg
+gives about 48.7 deg in the worst case, while 35 kHz / 60 deg and 30 kHz / 55 deg give only 45.0–45.2 deg.
+Integer gains kp = 86, ki = 3, kd = 1131 (x 2^-5). The quantisation rule now also requires each coefficient
+within 10 %. Costs: undershoot 66 mV (spec 90), recovery 26 us (spec 50), and a larger line-step
+deviation (docs/CONTROL.md section 8, item 6). Enforced by `robust_pm_meets_spec_all` and
+model/tests `test_pm_at_least_45_at_tolerance_corners`.

@@ -99,7 +99,7 @@ Check: 10 ms of steady state per case after start-up, then the histogram of the 
 |---|---|---|---|---|
 | 3.0 | 15 | [309] | [0.0] | 0.000 |
 | 3.0 | 75 | [315] | [0.0] | 0.000 |
-| 3.0 | 150 | [323] | [0.0] | 0.000 |
+| 3.0 | 150 | [322] | [0.0] | 0.000 |
 | 3.3 | 15 | [281] | [0.0] | 0.000 |
 | 3.3 | 75 | [286] | [0.0] | 0.000 |
 | 3.3 | 150 | [293] | [0.0] | 0.000 |
@@ -107,16 +107,16 @@ Check: 10 ms of steady state per case after start-up, then the histogram of the 
 | 3.6 | 75 | [262] | [0.0] | 0.000 |
 | 3.6 | 150 | [269] | [0.0] | 0.000 |
 
-Limit-cycle free in all 9 runs: **True**. Counter-example, 6-bit DPWM (LSB 51.6 mV at VOUT): limit cycle at **13 of 15** loads.
-Example at 20 mA: duty codes [26, 27, 35, 36, 44, 45], sampled VOUT p-p 14.1 mV.
+Limit-cycle free in all 9 runs: **True**. Counter-example, 6-bit DPWM (LSB 51.6 mV at VOUT): limit cycle at **12 of 15** loads.
+Example at 20 mA: duty codes [31, 35, 36, 40], sampled VOUT p-p 15.3 mV.
 
 | tap / ideal | DNL max [LSB] | DNL min [LSB] | loads with limit cycle | max sampled p-p [mV] |
 |---|---|---|---|---|
-| 0.6 | +2.80 | -0.40 | 4 of 15 | 12.63 |
-| 0.8 | +1.40 | -0.20 | 1 of 15 | 11.13 |
+| 0.6 | +2.80 | -0.40 | 3 of 15 | 13.53 |
+| 0.8 | +1.40 | -0.20 | 1 of 15 | 11.78 |
 | 1.0 | +0.00 | -0.00 | 0 of 15 | 0.00 |
-| 1.2 | +0.20 | -1.40 | 1 of 15 | 10.17 |
-| 1.4 | +0.40 | -2.80 | 4 of 15 | 10.43 |
+| 1.2 | +0.20 | -1.40 | 0 of 15 | 0.00 |
+| 1.4 | +0.40 | -2.80 | 3 of 15 | 11.18 |
 <!-- /AUTO:p1_limit -->
 
 **Delay-line error.** The tap sweep scales every fine tap by `tap_scale` (an uncalibrated delay line
@@ -139,25 +139,31 @@ C(z) = kp + ki / (1 - z^-1) + kd (1 - z^-1)
 **Method** (`model/controller.py: design`). With ki = alpha kp (alpha = 2 pi (fc/5) Ts, which puts the
 integral zero near fc/5), C(z0) at z0 = e^{j 2 pi fc Ts} is linear in (kp, kd). The conditions
 |L(z0)| = 1 and angle L(z0) = -180 + PM are then two real equations in two unknowns, with no
-iteration. Design point: VIN 3.3 V, 150 mA, current-source load (the least damping), fc = 50 kHz
-(fsw/20), PM = 50 deg.
+iteration. Design point: VIN 3.3 V, 150 mA, current-source load (the least damping), **fc = 30 kHz,
+PM = 60 deg**, integral zero at fc/5.
 
-Why 50 deg and fc/5: a 45 to 55 deg sweep in the switched simulation gave the same undershoot
-(about 49 mV) with recovery growing as PM rises; 60 deg could not be met with one crossover (the loop
-crossed 0 dB three times around the LC resonance, i.e. a conditionally stable design), so it was
-rejected. 50 deg leaves margin above the 45 deg spec for VIN and load variation.
+**Requirement that sets the design: PM >= 45 deg in every robustness case of section 6**, not just at
+nominal (user decision, DECISIONS D11). History:
+- The first design was fc = 50 kHz (fsw/20), PM = 50 deg. It gave 49.9 deg at nominal but 28.3 deg
+  at the L -20 % / C -20 % / VIN 3.6 V corner, and was rejected for that reason.
+- A search over fc 30–45 kHz, PM targets 50/55/60 deg and integral zeros at fc/5 and fc/8 found that only fc <= 35 kHz
+  keeps the worst corner >= 45 deg. 35 kHz / 60 deg and 30 kHz / 55 deg hit 45.0–45.2 deg, which leaves
+  no margin. 30 kHz / 60 deg gives about 48.7 deg worst case and was chosen.
+- Cost: the load-step undershoot rises from 49 mV to 66 mV (still inside the 90 mV spec), recovery
+  slows from 15 to 26 us (spec 50 us), and the line-step deviation grows (section 8, item 6). Gain:
+  kd halves (68 -> 35), so the derivative kicks halve, and GM rises to 14 dB.
 
 <!-- AUTO:p1_design -->
 | Quantity | Value | Unit | Kind |
 |---|---|---|---|
-| Design target | fc 50 kHz, PM 50 deg, integral zero fc/5 | - | model |
-| kp, ki, kd (float) | 4.4515, 0.2797, 68.240 | DPWM LSB / ADC LSB | model |
-| kp, ki, kd (Q2 integers) | 18, 1, 273 | x 2^-2 | model |
-| Crossover fc | 50.2 | kHz | model |
-| Phase margin | 49.9 | deg | model |
-| Gain margin | 8.6 at 125 kHz | dB | model |
-| Max closed-loop pole magnitude | 0.9575 | - | model |
-| Normalised integral gain Ki_n (worst VIN) | 0.176 | - | model |
+| Design target | fc 30 kHz, PM 60 deg, integral zero fc/5 | - | model |
+| kp, ki, kd (float) | 2.6953, 0.1016, 35.350 | DPWM LSB / ADC LSB | model |
+| kp, ki, kd (Q5 integers) | 86, 3, 1131 | x 2^-5 | model |
+| Crossover fc | 30.1 | kHz | model |
+| Phase margin | 60.2 | deg | model |
+| Gain margin | 14.2 at 124 kHz | dB | model |
+| Max closed-loop pole magnitude | 0.9697 | - | model |
+| Normalised integral gain Ki_n (worst VIN) | 0.066 | - | model |
 | Plant model check, max error | 4.1e-08 dB, 1.7e-06 deg | - | model |
 <!-- /AUTO:p1_design -->
 
@@ -172,24 +178,25 @@ single crossover.
 <!-- AUTO:p1_quant -->
 | frac bits | kp | ki | kd | fc [kHz] | PM [deg] | crossovers | max pole |
 |---|---|---|---|---|---|---|---|
-| 0 | 4.0000 | 0.0000 | 68.0000 | 51.08 | 51.47 | 1 | 1.0000 |
-| 1 | 4.5000 | 0.5000 | 68.0000 | 48.55 | 49.70 | 1 | 0.9623 |
-| 2 | 4.5000 | 0.2500 | 68.2500 | 50.21 | 49.88 | 1 | 0.9575 |
-| 3 | 4.5000 | 0.2500 | 68.2500 | 50.21 | 49.88 | 1 | 0.9575 |
-| 4 | 4.4375 | 0.2500 | 68.2500 | 50.17 | 50.06 | 1 | 0.9581 |
-| 5 | 4.4375 | 0.2812 | 68.2500 | 49.99 | 50.04 | 1 | 0.9587 |
-| 6 | 4.4531 | 0.2812 | 68.2344 | 49.99 | 50.00 | 1 | 0.9586 |
-| 7 | 4.4531 | 0.2812 | 68.2422 | 49.99 | 49.99 | 1 | 0.9586 |
-| 8 | 4.4531 | 0.2812 | 68.2383 | 49.99 | 49.99 | 1 | 0.9586 |
-| 9 | 4.4512 | 0.2793 | 68.2402 | 50.00 | 50.00 | 1 | 0.9586 |
-| 10 | 4.4512 | 0.2793 | 68.2402 | 50.00 | 50.00 | 1 | 0.9586 |
+| 0 | 3.0000 | 0.0000 | 35.0000 | 31.51 | 59.07 | 1 | 1.0000 |
+| 1 | 2.5000 | 0.0000 | 35.5000 | 31.14 | 62.92 | 1 | 1.0000 |
+| 2 | 2.7500 | 0.0000 | 35.2500 | 31.32 | 60.98 | 1 | 1.0000 |
+| 3 | 2.7500 | 0.1250 | 35.3750 | 29.78 | 59.15 | 1 | 0.9528 |
+| 4 | 2.6875 | 0.1250 | 35.3750 | 29.68 | 59.66 | 1 | 0.9503 |
+| 5 | 2.6875 | 0.0938 | 35.3438 | 30.09 | 60.19 | 1 | 0.9697 |
+| 6 | 2.6875 | 0.1094 | 35.3438 | 29.88 | 59.93 | 1 | 0.9613 |
+| 7 | 2.6953 | 0.1016 | 35.3516 | 30.00 | 60.00 | 1 | 0.9659 |
+| 8 | 2.6953 | 0.1016 | 35.3516 | 30.00 | 60.00 | 1 | 0.9659 |
+| 9 | 2.6953 | 0.1016 | 35.3496 | 30.00 | 60.00 | 1 | 0.9659 |
+| 10 | 2.6953 | 0.1016 | 35.3506 | 30.00 | 60.00 | 1 | 0.9659 |
 
-Chosen: **Q2** (smallest F with |dPM|<1 deg, |dfc|<2 %, ki>0, one crossover).
+Chosen: **Q5** (smallest F with |dPM|<1 deg, |dfc|<2 %, one crossover, every coefficient within 10 %).
 <!-- /AUTO:p1_quant -->
 
-Note that at the chosen F, ki is 0.25 against 0.280 (-11 %). The margins hardly move because the
-integral zero is well below crossover. It only slows the final integral tail, which the time-domain
-runs below include, because they use the quantised integers.
+The rule also requires every coefficient to be within 10 % of its design value. Without it, Q3 would
+pass on margins alone with ki rounded to 0.125 against 0.102 (+23 %). Margins hardly see ki because the
+integral zero is well below crossover, but ki sets the integral tail and Ki_n. The time-domain runs
+below use the quantised integers.
 
 ## 6. Robustness
 
@@ -200,20 +207,23 @@ Ron 0.25/0.5/1.0 ohm and load 15/150 mA (162 cases).
 | Quantity | Value | Unit | Kind |
 |---|---|---|---|
 | Cases | 162 | - | model |
-| PM range, VIN and load only (nominal L, C, Ron) | 48.2 .. 51.9 | deg | model |
-| PM range, L and C +/-20 % only | 33.5 .. 56.7 | deg | model |
-| PM range, all cases | 28.3 .. 66.5 | deg | model |
-| GM minimum, all cases | 4.0 | dB | model |
-| fc range, all cases | 31.5 .. 83.2 | kHz | model |
+| PM range, VIN and load only (nominal L, C, Ron) | 59.6 .. 61.1 | deg | model |
+| PM range, L and C +/-20 % only | 54.6 .. 63.5 | deg | model |
+| PM range, all cases | 48.7 .. 82.0 | deg | model |
+| GM minimum, all cases | 9.6 | dB | model |
+| fc range, all cases | 19.2 .. 47.9 | kHz | model |
 | All closed loops stable | True | - | model |
+| Single crossover in every case | True | - | model |
+| PM >= 45 deg in every case (requirement) | True | - | model |
 | Worst case | VIN 3.6 V, L 12 uH, C 8 uF, Ron 0.25 ohm, io 150 mA | - | model |
 <!-- /AUTO:p1_robust -->
 
-**Reading this.** VIN and load alone keep PM near the design value. The large spread comes from L and
-C tolerance: with both at -20 % the gain above resonance (proportional to 1/(LC)) rises by
-1/0.64 = 1.56x, so crossover moves up toward the delay-dominated region and PM drops. VIN feedforward
-would not fix this, because it is an LC-tolerance effect. Every case stays stable, but the corner
-falls below the 45 deg spec, so section 8 raises it as an open question.
+**Reading this.** VIN and load alone barely move PM. The spread comes from L and C tolerance: with
+both at -20 % the gain above resonance (proportional to 1/(LC)) rises by 1/0.64 = 1.56x, so crossover
+moves up toward the delay-dominated region and PM drops; with both at +20 % crossover moves down.
+VIN feedforward would not fix this, because it is an LC-tolerance effect. The design is chosen so the
+worst corner still meets 45 deg (`robust_pm_meets_spec_all`). Tolerance of +/-20 % on L and C is an
+assumption (A5).
 
 ## 7. Predicted time-domain response
 
@@ -225,22 +235,22 @@ resistive loads.
 <!-- AUTO:p1_time -->
 | Quantity | Value | Unit | Kind |
 |---|---|---|---|
-| Load step 15->150 mA: undershoot (switched) | 49.2 | mV | model |
-|   same, sampled instants only | 48.8 | mV | model |
-|   same, linear sampled model | 46.7 | mV | model |
-|   recovery to +/-1 % | 15.4 | us | model |
-| Load step 150->15 mA: overshoot | 46.7 | mV | model |
-|   recovery to +/-1 % | 17.0 | us | model |
-| Start-up overshoot, no load / full load | 0.33 / 0.33 | % | model |
-| Start-up peak iL, no load / full load | 73 / 221 | mA | model |
+| Load step 15->150 mA: undershoot (switched) | 65.7 | mV | model |
+|   same, sampled instants only | 65.3 | mV | model |
+|   same, linear sampled model | 64.8 | mV | model |
+|   recovery to +/-1 % | 25.6 | us | model |
+| Load step 150->15 mA: overshoot | 65.8 | mV | model |
+|   recovery to +/-1 % | 24.9 | us | model |
+| Start-up overshoot, no load / full load | -0.01 / -0.00 | % | model |
+| Start-up peak iL, no load / full load | 55 / 205 | mA | model |
 | Start-up current-limit trips | 0 / 0 | - | model |
 | Soft-start VREF ramp time | 0.999 | ms | model |
-| Line step 3.0->3.6 V: max deviation | +59.2 | mV | model |
-| Line step 3.6->3.0 V: max deviation | -63.5 | mV | model |
+| Line step 3.0->3.6 V: max deviation | +174.1 | mV | model |
+| Line step 3.6->3.0 V: max deviation | -169.0 | mV | model |
 | VOUT ripple p-p, 150 mA | 0.78 | mV | model |
 | iL ripple p-p, 150 mA | 53.9 | mA | model |
-| Overload 365 mA: max valley / peak iL | 413 / 417 | mA | model |
-| Overload: trips in 200 periods, min VOUT | 119, 0.239 V | - | model |
+| Overload 365 mA: max valley / peak iL | 373 / 382 | mA | model |
+| Overload: trips in 200 periods, min VOUT | 116, 0.049 V | - | model |
 <!-- /AUTO:p1_time -->
 
 Plots: `load_step.png`, `startup.png`, `line_step.png`, `limit_cycle_hist.png` and `tap_sweep.png` in
@@ -248,22 +258,25 @@ Plots: `load_step.png`, `startup.png`, `line_step.png`, `limit_cycle_hist.png` a
 
 ## 8. Observations and open questions
 
-1. **Derivative kick from quantised error.** kd is about 68 DPWM LSB per ADC LSB, so a single ADC code
-   change moves the duty by about 68 LSB for one period. This is visible as iL spikes in the recovery
-   phase of the load step and during soft start (where VREF steps every ~5.6 us). The loop settles to a
-   single code, but the spikes are real current stress. Phase 2 options: filter the D term, or a finer
-   soft-start step. (Derivative-on-measurement is not directly available, because the window ADC
-   measures the error, not VOUT.)
-2. **Start-up current margin.** At full load the start-up peak iL is close to the 250 mA limit (see
-   the table). A slower ramp or option 1 above would widen this margin.
+1. **Derivative kick from quantised error.** kd is about 35 DPWM LSB per ADC LSB (68 in the rejected
+   50 kHz design), so a single ADC code change moves the duty by about 35 LSB for one period. This
+   shows as iL spikes in the load-step recovery and during soft start (where VREF steps every
+   ~5.6 us). The loop settles to a single code, but the spikes are real current stress. Phase 2 options:
+   filter the D term, or a finer soft-start step. (Derivative-on-measurement is not directly
+   available, because the window ADC measures the error, not VOUT.)
+2. **Start-up current margin.** At full load the start-up peak iL is below the 250 mA limit, by the
+   margin shown in the table.
 3. **Valley limit is sampled once per period.** The check happens at the period start, so with a
    heavy overload the valley current can exceed the threshold by up to one on-time ramp before the
-   next HS pulse is suppressed. Phase 2/3 must decide whether the comparator also gates the HS
-   turn-on continuously (a true valley limit).
+   next HS pulse is suppressed (see the overload rows). Phase 2/3 must decide whether the comparator
+   also gates the HS turn-on continuously (a true valley limit).
 4. **Window ADC common mode.** With VREF up to 2.5 V and comparators on 1.8 V, the comparator inputs
    cannot sit at VOUT directly. A feedback divider (e.g. VOUT/2 with a 5 mV ladder LSB, which is
    still 10 mV at VOUT) is the likely Phase 3 answer. Near 0 V during soft start, the lower ladder taps
    would be negative; the ADC simply saturates there.
-5. **Robustness to L/C tolerance** (section 6): the PM falls below 45 deg only at the
-   L -20 % / C -20 % corner. It is your call whether +/-20 % is the right tolerance, and whether to
-   lower fc for margin there.
+5. **Robustness** (section 6): met in every case, by design.
+6. **Line step is the price of the robust design.** A 0.6 V VIN step in 10 us moves VOUT by the amount
+   in the table, well outside the ADC window (+70/-80 mV), so the loop works with a saturated error
+   for a few tens of us. The brief only asks for this to be reported. The usual fix is VIN
+   feedforward (scale the duty by VIN_nom/VIN), but it needs a VIN measurement that the architecture
+   does not have. That is an architecture change for the user to decide, not done here.

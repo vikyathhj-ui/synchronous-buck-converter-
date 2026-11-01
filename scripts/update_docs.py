@@ -84,6 +84,8 @@ def p1_robust():
         row("GM minimum, all cases", f"{v('robust_gm_min'):.1f}", "dB", "model"),
         row("fc range, all cases", "{:.1f} .. {:.1f}".format(*(x / 1e3 for x in v("robust_fc_range"))), "kHz", "model"),
         row("All closed loops stable", v("robust_all_stable"), "-", "model"),
+        row("Single crossover in every case", v("robust_single_crossover_all"), "-", "model"),
+        row(f"PM >= {v('pm_spec_all_cases'):.0f} deg in every case (requirement)", v("robust_pm_meets_spec_all"), "-", "model"),
         row("Worst case", f"VIN {w['vin']} V, L {w['L']*1e6:.0f} uH, C {w['C']*1e6:.0f} uF, "
             f"Ron {w['ron']} ohm, io {w['io']*1e3:.0f} mA", "-", "model"),
     ])
