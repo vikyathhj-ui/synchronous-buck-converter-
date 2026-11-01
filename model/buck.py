@@ -161,12 +161,104 @@ class SwitchedPlant:
             E, G = self._seg(t)
             self.x = E @ self.x + G @ u
 
-    def period(self, ton, io, vin, t0=0.0, nsub=0):
-        """Advance one period (HS on for ton, then LS). Returns (i_peak, dense_list)."""
+    def period(self, ton, io, vin, t0=0.0, nsub=0, t_pre=0.0, ls=True, tclk=1 / 64e6):
+        """Advance one period (HS on for ton, then LS).
+
+        Returns (i_peak, i_pre, dense): i_pre is iL at Ts - t_pre (the valley-comparator sample
+        point). With ls=False the LS is off and its body diode (ideal) blocks reverse current;
+        that interval is integrated in tclk steps with iL clamped at 0.
+        """
         Ts = self.b.Ts
         ton = min(max(ton, 0.0), Ts)
         dense = []
         self._advance(ton, np.array([vin, io]), nsub, t0, dense)
         ipk = self.x[0]
-        self._advance(Ts - ton, np.array([0.0, io]), nsub, t0 + ton, dense)
-        return ipk, dense
+        toff = Ts - ton
+        t_a = max(toff - t_pre, 0.0)
+        u0 = np.array([0.0, io])
+        if ls:
+            self._advance(t_a, u0, nsub, t0 + ton, dense)
+            ipre = self.x[0]
+            self._advance(toff - t_a, u0, nsub, t0 + ton + t_a, dense)
+        else:
+            n = int(toff // tclk + 1e-9)
+            rem = toff - n * tclk
+            if rem > 1e-15:
+                self._advance(rem, u0, 0, 0.0, dense)
+                self.x[0] = max(self.x[0], 0.0)
+            ipre = self.x[0]
+            for j in range(n):
+                self._advance(tclk, u0, 0, 0.0, dense)
+                if self.x[0] < 0:
+                    self.x[0] = 0.0
+                if j == n - 1 - int(round(t_pre / tclk)):
+                    ipre = self.x[0]
+                if nsub:
+                    dense.append((t0 + ton + (j + 1) * tclk, self.vout(io), self.x[0]))
+        return ipk, ipre, dense
+
+
+class ClockPlant:
+    """Per-clock plant for the RTL testbench and DCM runs.
+
+    HS is an SR latch: pwm_set turns it on at the clock edge, pwm_rst turns it off fine_sel taps
+    after the edge (the analog delay line). LS conducts whenever HS is off and ls_en = 1. With both
+    off, the LS body diode (ideal) carries positive iL and blocks reverse current. No dead time.
+    """
+
+    def __init__(self, buck, dpwm, x0=None):
+        self.b = buck
+        self.A, self.B, self.Cy, self.Dy = buck.matrices()
+        self.tclk = 1.0 / dpwm.fclk
+        self.tap = self.tclk / (1 << dpwm.fine_bits) * dpwm.tap_scale
+        self.x = np.zeros(2) if x0 is None else np.array(x0, float)
+        self.hs = False
+        self.off_in = None
+        self._ls = True
+        self._cache = {}
+
+    def _seg(self, t):
+        key = round(t * 1e15)
+        if key not in self._cache:
+            self._cache[key] = seg(self.A, self.B, t)
+        return self._cache[key]
+
+    def vout(self, io):
+        return float(self.Cy @ self.x + self.Dy[1] * io)
+
+    @property
+    def il(self):
+        return float(self.x[0])
+
+    @property
+    def ls_on(self):
+        return not self.hs and self._ls
+
+    def _adv(self, t, ls, vin, io):
+        if t <= 0:
+            return
+        E, G = self._seg(t)
+        u = np.array([vin if self.hs else 0.0, io])
+        self.x = E @ self.x + G @ u
+        if not self.hs and not ls and self.x[0] < 0:
+            self.x[0] = 0.0
+
+    def clock(self, pwm_set, pwm_rst, fine, ls_en, vin, io):
+        """Advance one clock period with the controls that are in force during this cycle."""
+        self._ls = bool(ls_en)
+        if pwm_set:
+            self.hs = True
+        if pwm_rst:
+            self.off_in = fine * self.tap
+        if self.hs and self.off_in is not None:
+            if self.off_in <= self.tclk:
+                t1 = self.off_in
+                self._adv(t1, ls_en, vin, io)
+                self.hs = False
+                self.off_in = None
+                self._adv(self.tclk - t1, ls_en, vin, io)
+                return
+            self.off_in -= self.tclk
+        elif not self.hs:
+            self.off_in = None
+        self._adv(self.tclk, ls_en, vin, io)

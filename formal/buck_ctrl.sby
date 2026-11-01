@@ -1,0 +1,18 @@
+# Safety properties of the controller (assertions in rtl/buck_ctrl_top.v, `ifdef FORMAL`):
+# FSM legal, duty <= DMAX, integrator bounded, dead-time selections non-zero,
+# no switching unless running. Unbounded proof by k-induction.
+[options]
+mode prove
+depth 8
+
+[engines]
+smtbmc yices
+
+[script]
+read -formal therm2bin.v
+read -formal buck_ctrl_top.v
+prep -top buck_ctrl_top
+
+[files]
+../rtl/therm2bin.v
+../rtl/buck_ctrl_top.v

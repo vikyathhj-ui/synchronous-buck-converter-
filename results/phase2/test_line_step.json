@@ -1,0 +1,9 @@
+{
+ "dev_up": 0.1741548315473873,
+ "dev_dn": -0.16898503183825064,
+ "recovery_up_1pct": 0.00010492187499999998,
+ "recovery_dn_1pct": 0.00011534374999999956,
+ "scoreboard_periods": 3000,
+ "scoreboard_mismatches": 0,
+ "source": "tb/test_buck_ctrl.py::test_line_step (cocotb, Icarus Verilog)"
+}

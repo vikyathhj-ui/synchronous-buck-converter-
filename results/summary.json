@@ -387,7 +387,7 @@
    "source": "model/phase1.py"
   },
   "loadstep_undershoot": {
-   "value": 0.065679469089029,
+   "value": 0.06561065965217838,
    "unit": "V",
    "kind": "model",
    "source": "model/phase1.py",
@@ -400,13 +400,13 @@
    "source": "model/phase1.py"
   },
   "loadstep_down_overshoot": {
-   "value": 0.06580282239706214,
+   "value": 0.06586755246005471,
    "unit": "V",
    "kind": "model",
    "source": "model/phase1.py"
   },
   "loadstep_down_recovery_1pct": {
-   "value": 2.490283203124971e-05,
+   "value": 2.4891113281249808e-05,
    "unit": "s",
    "kind": "model",
    "source": "model/phase1.py"
@@ -425,20 +425,20 @@
    "note": "linear sampled model, no quantisation, current-source load"
   },
   "loadstep_undershoot_switched_sampled": {
-   "value": 0.06529611922475231,
+   "value": 0.06529611922475209,
    "unit": "V",
    "kind": "model",
    "source": "model/phase1.py",
    "note": "same run as loadstep_undershoot, sampled instants only (compare with linear)"
   },
   "startup_noload_overshoot_pct": {
-   "value": -0.00727061913420436,
+   "value": -0.007308761158052334,
    "unit": "%",
    "kind": "model",
    "source": "model/phase1.py"
   },
   "startup_noload_il_peak": {
-   "value": 0.054945907913783364,
+   "value": 0.05494590791378352,
    "unit": "A",
    "kind": "model",
    "source": "model/phase1.py"
@@ -450,19 +450,19 @@
    "source": "model/phase1.py"
   },
   "startup_noload_vref_ramp_time": {
-   "value": 0.0009989999999999999,
+   "value": 0.001001,
    "unit": "s",
    "kind": "model",
    "source": "model/phase1.py"
   },
   "startup_fullload_overshoot_pct": {
-   "value": -0.0037937704253273217,
+   "value": -0.0038136937497866715,
    "unit": "%",
    "kind": "model",
    "source": "model/phase1.py"
   },
   "startup_fullload_il_peak": {
-   "value": 0.2047456132501475,
+   "value": 0.20474561325014545,
    "unit": "A",
    "kind": "model",
    "source": "model/phase1.py"
@@ -474,34 +474,34 @@
    "source": "model/phase1.py"
   },
   "startup_fullload_vref_ramp_time": {
-   "value": 0.0009989999999999999,
+   "value": 0.001001,
    "unit": "s",
    "kind": "model",
    "source": "model/phase1.py"
   },
   "linestep_up_dev_max": {
-   "value": 0.17410022099714473,
+   "value": 0.17414712696373535,
    "unit": "V",
    "kind": "model",
    "source": "model/phase1.py",
    "note": "3.0 -> 3.6 V in 10 us, 150 mA"
   },
   "linestep_dn_dev_min": {
-   "value": -0.1690353110264462,
+   "value": -0.16898756529252634,
    "unit": "V",
    "kind": "model",
    "source": "model/phase1.py",
    "note": "3.6 -> 3.0 V in 10 us, 150 mA"
   },
   "ripple_vout_pp_fullload": {
-   "value": 0.0007829024701504483,
+   "value": 0.0007828654421395687,
    "unit": "V",
    "kind": "model",
    "source": "model/phase1.py",
    "note": "VIN 3.3 V, 150 mA resistive, steady state"
   },
   "ripple_il_pp_fullload": {
-   "value": 0.05385658405206667,
+   "value": 0.05385658405202745,
    "unit": "A",
    "kind": "model",
    "source": "model/phase1.py"
@@ -518,7 +518,7 @@
      "adc_codes": [
       0.0
      ],
-     "v_sample_pp": 5.243538936383629e-10
+     "v_sample_pp": 5.931923841018261e-10
     },
     {
      "vin": 3.0,
@@ -542,7 +542,7 @@
      "adc_codes": [
       0.0
      ],
-     "v_sample_pp": 2.6267876762631204e-13
+     "v_sample_pp": 3.090860900556436e-13
     },
     {
      "vin": 3.3,
@@ -554,7 +554,7 @@
      "adc_codes": [
       0.0
      ],
-     "v_sample_pp": 2.1917623271860975e-10
+     "v_sample_pp": 2.5210500353978205e-10
     },
     {
      "vin": 3.3,
@@ -566,7 +566,7 @@
      "adc_codes": [
       0.0
      ],
-     "v_sample_pp": 7.541078872463913e-12
+     "v_sample_pp": 8.43591863031179e-12
     },
     {
      "vin": 3.3,
@@ -578,7 +578,7 @@
      "adc_codes": [
       0.0
      ],
-     "v_sample_pp": 8.517631044924201e-13
+     "v_sample_pp": 9.616751839303106e-13
     },
     {
      "vin": 3.6,
@@ -590,7 +590,7 @@
      "adc_codes": [
       0.0
      ],
-     "v_sample_pp": 2.7210456110537962e-11
+     "v_sample_pp": 2.8408830843318356e-11
     },
     {
      "vin": 3.6,
@@ -602,7 +602,7 @@
      "adc_codes": [
       0.0
      ],
-     "v_sample_pp": 3.979261364861486e-12
+     "v_sample_pp": 4.426459199180499e-12
     },
     {
      "vin": 3.6,
@@ -614,7 +614,7 @@
      "adc_codes": [
       0.0
      ],
-     "v_sample_pp": 3.0795366257052592e-12
+     "v_sample_pp": 3.098854506333737e-12
     }
    ],
    "unit": "-",
@@ -660,7 +660,7 @@
      36,
      40
     ],
-    "v_sample_pp": 0.01533676202477996
+    "v_sample_pp": 0.015336762024779738
    },
    "unit": "-",
    "kind": "model",
@@ -674,7 +674,7 @@
      "dnl_min": -0.40000000000009384,
      "loads_with_limit_cycle": 3,
      "n_loads": 15,
-     "v_sample_pp_max": 0.01353255972301115
+     "v_sample_pp_max": 0.013532559723010928
     },
     {
      "tap_scale": 0.8,
@@ -682,7 +682,7 @@
      "dnl_min": -0.20000000000008888,
      "loads_with_limit_cycle": 1,
      "n_loads": 15,
-     "v_sample_pp_max": 0.011776696954764132
+     "v_sample_pp_max": 0.011776696954765908
     },
     {
      "tap_scale": 1.0,
@@ -690,7 +690,7 @@
      "dnl_min": -8.404388296412435e-14,
      "loads_with_limit_cycle": 0,
      "n_loads": 15,
-     "v_sample_pp_max": 3.3306690738754696e-15
+     "v_sample_pp_max": 3.1086244689504383e-15
     },
     {
      "tap_scale": 1.2,
@@ -698,7 +698,7 @@
      "dnl_min": -1.4000000000000097,
      "loads_with_limit_cycle": 0,
      "n_loads": 15,
-     "v_sample_pp_max": 5.10702591327572e-15
+     "v_sample_pp_max": 5.329070518200751e-15
     },
     {
      "tap_scale": 1.4,
@@ -706,7 +706,7 @@
      "dnl_min": -2.800000000000044,
      "loads_with_limit_cycle": 3,
      "n_loads": 15,
-     "v_sample_pp_max": 0.011181407622407491
+     "v_sample_pp_max": 0.01118140762240527
     }
    ],
    "unit": "-",
@@ -715,29 +715,546 @@
    "note": "DNL from ideal-tap model; limit cycle = >1 duty code in 2.5 ms steady state"
   },
   "overload_valley_max": {
-   "value": 0.373064043697322,
+   "value": 0.32338387863178975,
    "unit": "A",
    "kind": "model",
    "source": "model/phase1.py",
-   "note": "0.365 A load for 200 us, ILIM 0.25 A"
+   "note": "0.365 A load for 200 us, ILIM 0.25 A; measured up to FAULT"
   },
   "overload_peak_max": {
-   "value": 0.3821649728835811,
+   "value": 0.3418258238887449,
    "unit": "A",
    "kind": "model",
-   "source": "model/phase1.py"
+   "source": "model/phase1.py",
+   "note": "0.365 A load for 200 us, ILIM 0.25 A; measured up to FAULT"
   },
   "overload_trips": {
-   "value": 116,
+   "value": 37,
+   "unit": "-",
+   "kind": "model",
+   "source": "model/phase1.py",
+   "note": "0.365 A load for 200 us, ILIM 0.25 A; measured up to FAULT"
+  },
+  "overload_periods_before_fault": {
+   "value": 99,
    "unit": "-",
    "kind": "model",
    "source": "model/phase1.py"
   },
   "overload_vout_min": {
-   "value": 0.04938208290075915,
+   "value": 0.6285099453946451,
    "unit": "V",
    "kind": "model",
+   "source": "model/phase1.py",
+   "note": "0.365 A load for 200 us, ILIM 0.25 A; measured up to FAULT"
+  },
+  "overload_fault": {
+   "value": true,
+   "unit": "-",
+   "kind": "model",
+   "source": "model/phase1.py",
+   "note": "trip score +3/-1 per period, FAULT at Regs.fault_n = 64"
+  },
+  "overload_fault_after": {
+   "value": 9.89999999999997e-05,
+   "unit": "s",
+   "kind": "model",
    "source": "model/phase1.py"
+  }
+ },
+ "phase2": {
+  "test_current_limit_fault": {
+   "value": {
+    "periods_to_fault": 99,
+    "trips_before_fault": 38,
+    "valley_max_before_fault": 0.32338422398872607,
+    "peak_max_before_fault": 0.3411904716410704,
+    "restarted_to_ccm": true,
+    "modes_after_clear": [
+     1,
+     2,
+     4
+    ],
+    "scoreboard_periods": 3250,
+    "scoreboard_mismatches": 0
+   },
+   "kind": "rtl-sim",
+   "source": "tb/test_buck_ctrl.py::test_current_limit_fault (cocotb, Icarus Verilog)",
+   "file": "results/phase2/test_current_limit_fault.json"
+  },
+  "test_dcm": {
+   "value": {
+    "entered_dcm": true,
+    "t_dcm": 0.001013,
+    "dcm_il_min": -0.004005074545656922,
+    "dcm_cut_cycles": [
+     2,
+     3,
+     4,
+     5,
+     6,
+     7,
+     8,
+     9,
+     10,
+     11,
+     12,
+     13,
+     14,
+     15,
+     16,
+     17,
+     18,
+     19,
+     20,
+     21,
+     22,
+     23,
+     24,
+     25,
+     26,
+     27,
+     28,
+     29,
+     30,
+     31,
+     32,
+     33,
+     34,
+     35,
+     36,
+     37,
+     38,
+     39,
+     40,
+     41,
+     42,
+     43,
+     44,
+     45,
+     46,
+     47,
+     48,
+     49,
+     50,
+     51,
+     52,
+     53,
+     54,
+     55
+    ],
+    "dcm_v_mean": 1.8633584081610568,
+    "dcm_v_sample_pp": 0.1794480289241165,
+    "dcm_v_min": 1.746928201411959,
+    "dcm_v_max": 1.9273383824437604,
+    "mode_changes_in_window": 0,
+    "frac_periods_in_dcm": 1.0,
+    "dcm_duty_codes": [
+     4,
+     5,
+     6,
+     7,
+     8,
+     9,
+     10,
+     11,
+     12,
+     13,
+     14,
+     15,
+     16,
+     17,
+     18,
+     19,
+     20,
+     21,
+     22,
+     23,
+     24,
+     25,
+     26,
+     27,
+     28,
+     29,
+     30,
+     31,
+     32,
+     33,
+     34,
+     35,
+     36,
+     37,
+     38,
+     39,
+     40,
+     41,
+     42,
+     43,
+     44,
+     45,
+     46,
+     47,
+     48,
+     49,
+     50,
+     51,
+     52,
+     53,
+     54,
+     55,
+     56,
+     57,
+     58,
+     59,
+     60,
+     61,
+     62,
+     63,
+     64,
+     65,
+     66,
+     67,
+     68,
+     69,
+     70,
+     71,
+     72,
+     73,
+     74,
+     75,
+     76,
+     77,
+     78,
+     79,
+     80,
+     81,
+     82,
+     83,
+     84,
+     85,
+     86,
+     87,
+     88,
+     89,
+     90,
+     91,
+     92,
+     93,
+     94,
+     95,
+     96,
+     97,
+     98,
+     99,
+     100,
+     101,
+     102,
+     103,
+     104,
+     105,
+     106,
+     107,
+     108,
+     109,
+     110,
+     111,
+     112,
+     113,
+     114,
+     115,
+     116,
+     117,
+     118,
+     119,
+     120,
+     121,
+     122,
+     123,
+     124,
+     125,
+     126,
+     127,
+     128,
+     129,
+     130,
+     131,
+     132,
+     133,
+     134,
+     135,
+     136,
+     137,
+     138,
+     139,
+     140,
+     141,
+     142,
+     143,
+     144,
+     145,
+     146,
+     147,
+     148,
+     149,
+     150,
+     151,
+     152,
+     153,
+     154,
+     155,
+     156,
+     157,
+     158,
+     159,
+     160,
+     161,
+     162,
+     163,
+     164,
+     165,
+     166,
+     167,
+     168,
+     169,
+     170,
+     171,
+     172,
+     173,
+     174,
+     175,
+     176,
+     177,
+     178,
+     179,
+     180,
+     181,
+     182,
+     183,
+     184,
+     185,
+     186,
+     187,
+     188,
+     189,
+     190,
+     191,
+     192,
+     193,
+     194,
+     195,
+     196,
+     197,
+     198,
+     199,
+     200,
+     201,
+     202,
+     203,
+     204,
+     205,
+     206,
+     207,
+     208,
+     209,
+     210,
+     211,
+     212,
+     213,
+     214,
+     215,
+     216,
+     217,
+     218,
+     219,
+     220,
+     221,
+     222,
+     223,
+     228,
+     229,
+     230,
+     231,
+     232,
+     236,
+     237,
+     238,
+     239,
+     240,
+     243,
+     244
+    ],
+    "back_to_ccm": true,
+    "scoreboard_periods": 3000,
+    "scoreboard_mismatches": 0
+   },
+   "kind": "rtl-sim",
+   "source": "tb/test_buck_ctrl.py::test_dcm (cocotb, Icarus Verilog)",
+   "file": "results/phase2/test_dcm.json"
+  },
+  "test_limit_cycle": {
+   "value": {
+    "duty_codes": [
+     286
+    ],
+    "counts": [
+     10000
+    ],
+    "adc_codes": [
+     0
+    ],
+    "v_sample_pp": 8.85957973650875e-12,
+    "scoreboard_periods": 12000,
+    "scoreboard_mismatches": 0
+   },
+   "kind": "rtl-sim",
+   "source": "tb/test_buck_ctrl.py::test_limit_cycle (cocotb, Icarus Verilog)",
+   "file": "results/phase2/test_limit_cycle.json"
+  },
+  "test_line_step": {
+   "value": {
+    "dev_up": 0.1741548315473873,
+    "dev_dn": -0.16898503183825064,
+    "recovery_up_1pct": 0.00010492187499999998,
+    "recovery_dn_1pct": 0.00011534374999999956,
+    "scoreboard_periods": 3000,
+    "scoreboard_mismatches": 0
+   },
+   "kind": "rtl-sim",
+   "source": "tb/test_buck_ctrl.py::test_line_step (cocotb, Icarus Verilog)",
+   "file": "results/phase2/test_line_step.json"
+  },
+  "test_load_step": {
+   "value": {
+    "undershoot": 0.06565847090714017,
+    "recovery_1pct": 2.559375000000001e-05,
+    "down_overshoot": 0.06221555863210759,
+    "down_recovery_1pct": 2.490625000000019e-05,
+    "ilim_trips": 0,
+    "scoreboard_periods": 2600,
+    "scoreboard_mismatches": 0
+   },
+   "kind": "rtl-sim",
+   "source": "tb/test_buck_ctrl.py::test_load_step (cocotb, Icarus Verilog)",
+   "file": "results/phase2/test_load_step.json"
+  },
+  "test_mode_transitions": {
+   "value": {
+    "modes_seen": [
+     0,
+     1,
+     2,
+     3,
+     4
+    ],
+    "dcm_overload_exit_periods": 5,
+    "scoreboard_periods": 4573,
+    "scoreboard_mismatches": 0
+   },
+   "kind": "rtl-sim",
+   "source": "tb/test_buck_ctrl.py::test_mode_transitions (cocotb, Icarus Verilog)",
+   "file": "results/phase2/test_mode_transitions.json"
+  },
+  "test_random_registers": {
+   "value": {
+    "writes": 120,
+    "scoreboard_periods": 4084,
+    "scoreboard_mismatches": 0
+   },
+   "kind": "rtl-sim",
+   "source": "tb/test_buck_ctrl.py::test_random_registers (cocotb, Icarus Verilog)",
+   "file": "results/phase2/test_random_registers.json"
+  },
+  "test_registers": {
+   "value": {
+    "pass": true,
+    "checks": 31
+   },
+   "kind": "rtl-sim",
+   "source": "tb/test_buck_ctrl.py::test_registers (cocotb, Icarus Verilog)",
+   "file": "results/phase2/test_registers.json"
+  },
+  "test_startup": {
+   "value": {
+    "overshoot_pct": -0.0037868739773590696,
+    "il_peak": 0.204559705155441,
+    "ilim_trips": 0,
+    "t_ccm": 0.0010019999999999999,
+    "final_mode": 2,
+    "v_final": 1.7983418406355616,
+    "scoreboard_periods": 1600,
+    "scoreboard_mismatches": 0
+   },
+   "kind": "rtl-sim",
+   "source": "tb/test_buck_ctrl.py::test_startup (cocotb, Icarus Verilog)",
+   "file": "results/phase2/test_startup.json"
+  },
+  "test_therm_decode": {
+   "value": {
+    "pass": true,
+    "patterns": 400
+   },
+   "kind": "rtl-sim",
+   "source": "tb/test_buck_ctrl.py::test_therm_decode (cocotb, Icarus Verilog)",
+   "file": "results/phase2/test_therm_decode.json"
+  },
+  "test_vref_change": {
+   "value": {
+    "v_at_1v2_mean": 1.2006611745166265,
+    "v_at_1v2_pp": 6.490288084748386e-09,
+    "v_at_2v5_mean": 2.496361837858429,
+    "v_at_2v5_pp": 9.430924485798187e-09,
+    "vref_code_end": 250,
+    "duty_at_2v5": 397,
+    "scoreboard_periods": 4500,
+    "scoreboard_mismatches": 0
+   },
+   "kind": "rtl-sim",
+   "source": "tb/test_buck_ctrl.py::test_vref_change (cocotb, Icarus Verilog)",
+   "file": "results/phase2/test_vref_change.json"
+  },
+  "cocotb_results": {
+   "value": {
+    "test_registers": "skip",
+    "test_therm_decode": "skip",
+    "test_startup": "skip",
+    "test_load_step": "skip",
+    "test_line_step": "skip",
+    "test_vref_change": "skip",
+    "test_current_limit_fault": "skip",
+    "test_limit_cycle": "skip",
+    "test_dcm": "pass",
+    "test_random_registers": "skip",
+    "test_mode_transitions": "skip"
+   },
+   "kind": "rtl-sim",
+   "source": "tb/results.xml"
+  },
+  "functional_coverage_pct": {
+   "value": {
+    "ctrl.adc_code": 100.0,
+    "ctrl.coarse": 80.0,
+    "ctrl.dcm_cut": 100.0,
+    "ctrl.fine_sel": 100.0,
+    "ctrl.mode": 80.0,
+    "ctrl.transition": 36.4,
+    "ctrl.trip": 50.0,
+    "ctrl.zc_seen": 100.0
+   },
+   "kind": "rtl-sim",
+   "source": "results/phase2/coverage.yml"
+  },
+  "lint": {
+   "value": {
+    "warnings": 0,
+    "errors": 0
+   },
+   "kind": "lint",
+   "source": "results/phase2/lint.txt"
+  },
+  "formal": {
+   "value": "PASS",
+   "kind": "formal",
+   "source": "formal/buck_ctrl.sby (status file)"
   }
  }
 }

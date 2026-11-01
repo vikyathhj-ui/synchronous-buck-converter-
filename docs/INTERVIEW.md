@@ -68,3 +68,41 @@ Lowering the crossover to 30 kHz with a 60 deg target gives a 48.7 deg worst cas
 undershoot (49 -> 66 mV, spec 90) and a larger line-step deviation (about +/-170 mV for a 0.6 V
 VIN step in 10 us).
 
+
+### Q10. How is the PID implemented in hardware, and why that word length?
+A parallel PID on a signed 4-bit error with Q5 coefficients (12-bit registers). Products are registered
+in one cycle; the next cycle does the integrator update, sum, rounding ((s + 16) >>> 5) and clamp.
+24-bit signed arithmetic covers the worst case, |4095 x 8| + 511 x 32 + |4095 x 15|. The whole update
+uses 3 of the 64 clocks in a period, so there is no timing pressure at 64 MHz.
+
+### Q11. What anti-windup did you use, and how did you prove it works?
+The integrator is clamped to the duty range [0, DMAX] x 2^5, and it is frozen in any period where
+the valley current limit suppressed the HS pulse (otherwise the integrator would wind up while the
+limit holds the duty down). A SymbiYosys k-induction proof shows the integrator can never leave
+[0, 511 x 2^5]. Deleting the clamp from the RTL makes the proof fail, so the property is not vacuous.
+
+### Q12. Why is the valley current sampled one clock before the period ends?
+The decision to suppress the next HS pulse has to exist before the clock edge that would start it.
+The comparator is clocked in cycle 63, and its result is registered at the period edge and gates
+pwm_set. The valley sample is therefore 15.6 ns before the true valley, where iL is about
+15.6 ns x VOUT/L = 1.9 mA higher (analysis at 1.8 V out).
+
+### Q13. Valley versus peak current limit: why valley here, and what is the catch?
+In a buck the LS conducts during the off time, so its VDS gives the current with no blanking
+problem at HS turn-on, and a valley limit lets the controller simply skip the next HS pulse.
+A peak limit acts within the same cycle, but it needs a fast comparator on the HS and leading-edge
+blanking. The catch with a sampled valley limit is that the peak can exceed the threshold by one
+full on-time ramp. In the model, the overload peak reached 342 mA against a 250 mA valley
+threshold before FAULT.
+
+### Q14. How did you know the RTL matched your model?
+I didn't compare plots. A scoreboard runs the golden model every switching period with the same ADC
+code, trip bit and zero-cross history as the RTL, and requires bit-identical mode, HS enable,
+LS enable, coarse and fine duty, and VREF code. It does this in closed loop, so the stimulus is
+realistic, and in a random-register-write test, so the corner cases are hit.
+
+### Q15. What is the zero-cross detector's timing problem?
+The comparator is sampled once per 15.6 ns clock and the LS turns off at the next edge, so iL can
+go negative for up to about 2 clocks. At a down-slope of VOUT/L = 0.12 A/us that is about 4 mA of
+reverse current (analysis), which shows up as a small negative iL dip in DCM. A continuous-time
+comparator driving the LS gate directly would remove it, at the cost of an asynchronous path.

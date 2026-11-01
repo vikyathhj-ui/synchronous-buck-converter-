@@ -17,6 +17,7 @@ import numpy as np
 
 from .buck import Buck, Dpwm
 from .controller import Adc, closed_loop_matrix, design, linear_load_step, loop, margins
+from .ctrl_ref import FAULT, Regs
 from .sim import open_loop_response, simulate
 
 ROOT = pathlib.Path(__file__).resolve().parents[1]
@@ -198,13 +199,13 @@ def main():
     fig.savefig(PLOTS / "bode.png", dpi=150)
     plt.close(fig)
 
-    gi_args = (gi, F)
+    R = lambda: Regs(kp=gi[0], ki=gi[1], kd=gi[2])
 
     # ---------------- 7. load step 15 -> 150 mA ----------------
     g15 = 0.015 / VSET          # 15 mA resistive base load
     bl = replace(b, g_load=g15)
     io_fn = lambda t: 0.135 if 3.0e-3 <= t < 3.3e-3 else 0.0
-    r = simulate(bl, dp, adc, *gi_args, n=3600, vref_target=VREF_CODE, ilim=ILIM, io_fn=io_fn,
+    r = simulate(bl, dp, R(), frac=F, n=3600, io_fn=io_fn,
                  dense_from=2.9e-3, dense_to=3.6e-3, nsub=16)
     tt, vv, ii = dense_arrays(r)
     us, _, rec_up = step_metrics(tt, vv, 3.0e-3, 3.3e-3, VSET)
@@ -242,7 +243,7 @@ def main():
     starts = {}
     for name, gload in (("noload", 0.0), ("fullload", 0.15 / VSET)):
         bs = replace(b, g_load=gload)
-        rs_ = simulate(bs, dp, adc, *gi_args, n=2500, vref_target=VREF_CODE, ilim=ILIM,
+        rs_ = simulate(bs, dp, R(), frac=F, n=2500,
                        dense_from=0.0, dense_to=2.5e-3, nsub=4)
         ts, vs, is_ = dense_arrays(rs_)
         ramp_end = rs_.t[np.argmax(rs_.vref >= VSET - 1e-9)]
@@ -279,7 +280,7 @@ def main():
             return 3.6 - 0.6 * (t - 3.5e-3) / 10e-6
         return 3.0
     bf = replace(b, g_load=0.15 / VSET)
-    r = simulate(bf, dp, adc, *gi_args, n=4000, vref_target=VREF_CODE, ilim=ILIM, vin_fn=vin_fn,
+    r = simulate(bf, dp, R(), frac=F, n=4000, vin_fn=vin_fn,
                  dense_from=2.9e-3, dense_to=4.0e-3, nsub=8)
     tt, vv, _ = dense_arrays(r)
     m_up = (tt >= 3.0e-3) & (tt < 3.5e-3)
@@ -297,7 +298,7 @@ def main():
     plt.close(fig)
 
     # ---------------- 10. ripple at full load ----------------
-    r = simulate(bf, dp, adc, *gi_args, n=3000, vref_target=VREF_CODE, ilim=ILIM,
+    r = simulate(bf, dp, R(), frac=F, n=3000,
                  dense_from=2.95e-3, dense_to=3.0e-3, nsub=64)
     _, vv, ii = dense_arrays(r)
     put("ripple_vout_pp_fullload", vv.max() - vv.min(), "V", note="VIN 3.3 V, 150 mA resistive, steady state")
@@ -308,7 +309,7 @@ def main():
     hist_nom = None
     for vin, io in product((3.0, 3.3, 3.6), (0.015, 0.075, 0.15)):
         bb = replace(b, vin=vin, g_load=io / VSET)
-        rr = simulate(bb, dp, adc, *gi_args, n=12000, vref_target=VREF_CODE, ilim=ILIM)
+        rr = simulate(bb, dp, R(), frac=F, n=12000)
         ss = slice(2000, 12000)
         codes, cnt = np.unique(rr.d[ss], return_counts=True)
         ecodes = np.unique(rr.e[ss])
@@ -328,7 +329,7 @@ def main():
     n_lc6, c6, n6 = 0, None, None
     for io in np.linspace(0.010, 0.150, 15):
         bb = replace(b, g_load=io / VSET)
-        rr = simulate(bb, dp6, adc, g6.ints(F6), F6, n=12000, vref_target=VREF_CODE, ilim=ILIM)
+        rr = simulate(bb, dp6, Regs(**dict(zip(('kp', 'ki', 'kd'), g6.ints(F6))), dmax=62), frac=F6, n=12000)
         cc, nn = np.unique(rr.d[2000:], return_counts=True)
         n_lc6 += len(cc) > 1
         if len(cc) > 1 and c6 is None:
@@ -367,7 +368,7 @@ def main():
         pp = []
         for io in loads:
             bb = replace(b, g_load=io / VSET)
-            rr = simulate(bb, dps, adc, *gi_args, n=5000, vref_target=VREF_CODE, ilim=ILIM)
+            rr = simulate(bb, dps, R(), frac=F, n=5000)
             n_lc += len(np.unique(rr.d[2500:])) > 1
             pp.append(float(np.ptp(rr.v[2500:])))
         tap.append(dict(tap_scale=s_, dnl_max=float(steps.max() - 1), dnl_min=float(steps.min() - 1),
@@ -389,12 +390,20 @@ def main():
 
     # ---------------- 13. overload: valley current limit ----------------
     io_ol = lambda t: 0.35 if 3.0e-3 <= t < 3.2e-3 else 0.0
-    rr = simulate(bl, dp, adc, *gi_args, n=3500, vref_target=VREF_CODE, ilim=ILIM, io_fn=io_ol)
-    w = slice(int(3.0e-3 / b.Ts), int(3.2e-3 / b.Ts))
-    put("overload_valley_max", float(rr.il_valley[w].max()), "A", note="0.365 A load for 200 us, ILIM 0.25 A")
-    put("overload_peak_max", float(rr.il_peak[w].max()), "A")
-    put("overload_trips", int(rr.trip[w].sum()), "-")
-    put("overload_vout_min", float(rr.v[w].min()), "V")
+    rr = simulate(bl, dp, R(), frac=F, n=3500, io_fn=io_ol)
+    k0, k1 = int(3.0e-3 / b.Ts), int(3.2e-3 / b.Ts)
+    fault = rr.mode == FAULT
+    kf = int(np.argmax(fault)) if fault.any() else k1
+    w = slice(k0, min(kf, k1))   # before FAULT: afterwards the ideal current-source load is non-physical
+    note = "0.365 A load for 200 us, ILIM 0.25 A; measured up to FAULT"
+    put("overload_valley_max", float(rr.il_valley[w].max()), "A", note=note)
+    put("overload_peak_max", float(rr.il_peak[w].max()), "A", note=note)
+    put("overload_trips", int(rr.trip[w].sum()), "-", note=note)
+    put("overload_periods_before_fault", int(min(kf, k1) - k0), "-")
+    put("overload_vout_min", float(rr.v[w].min()), "V", note=note)
+    put("overload_fault", bool(fault.any()), "-", note="trip score +3/-1 per period, FAULT at Regs.fault_n = 64")
+    if fault.any():
+        put("overload_fault_after", float(rr.t[kf] - 3.0e-3), "s")
 
     # ---------------- write ----------------
     path = ROOT / "results" / "summary.json"

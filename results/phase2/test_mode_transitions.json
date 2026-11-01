@@ -1,0 +1,13 @@
+{
+ "modes_seen": [
+  0,
+  1,
+  2,
+  3,
+  4
+ ],
+ "dcm_overload_exit_periods": 5,
+ "scoreboard_periods": 4573,
+ "scoreboard_mismatches": 0,
+ "source": "tb/test_buck_ctrl.py::test_mode_transitions (cocotb, Icarus Verilog)"
+}

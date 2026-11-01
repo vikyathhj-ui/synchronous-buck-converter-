@@ -21,3 +21,15 @@
 - Margin at nominal is not robustness. 50 deg at nominal fell to 28 deg at an L/C -20 % corner because
   the gain above resonance scales with 1/(LC). Getting the worst case to 45 deg meant lowering fc from 50 to
   30 kHz. That traded load-step speed and line rejection for margin.
+
+## Phase 2
+- Writing the golden model first and making the RTL match it bit for bit, every period, catches
+  timing mistakes that a "does the output look right" test would miss.
+- A behavioural model can do things hardware cannot. Updating VREF and sampling at the same instant,
+  and sampling the valley at the exact switching edge, both had to be moved for the RTL.
+- A consecutive-event fault counter can be defeated by the protection itself. Suppressing a pulse
+  clears the condition for one period, so a leaky score is needed.
+- k-induction proved the safety properties in under a second; mutating the RTL (removing a clamp)
+  is the cheap way to show the properties actually constrain something.
+- A 15.625 ns clock is an odd number of picoseconds, so the simulator needs fs precision for a 50 %
+  duty clock.

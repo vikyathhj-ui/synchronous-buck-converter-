@@ -18,6 +18,15 @@
 - Open items (CONTROL.md section 8): derivative kicks (kd = 35); valley limit sampled once per period;
   window-ADC common mode (feedback divider); line step about +/-170 mV (VIN feedforward would need a VIN sensor).
 
-## Phase 2 — Controller RTL (NEXT, only after the user approves the Phase 1 gate)
-- RTL must match `model/controller.py: FixedPid` and the timing in `model/sim.py` (DECISIONS D10).
-- Before the first PR: ask the user about creating `main` as the base branch (repo has only rework/buck).
+## Phase 2 — Controller RTL and closed-loop verification (DONE, PR pending user answer on `main`)
+- `rtl/buck_ctrl_top.v`, `rtl/therm2bin.v`; golden model `model/ctrl_ref.py`; per-clock golden sim
+  `model/sim.py: simulate_clocked`; timing contract in `docs/ARCHITECTURE.md` (DECISIONS D12–D19).
+- cocotb bench `tb/` (bit-exact scoreboard every period, per-clock Python plant): 11/11 pass, 0
+  mismatches; functional coverage 100 %; Verilator lint clean; SymbiYosys k-induction PASS.
+- Results: `results/phase2/*.json` -> `summary.json["phase2"]` (scripts/collect_phase2.py);
+  `docs/VERIFICATION.md`. CI: `.github/workflows/ci.yml` (lint, model tests, formal, cocotb QUICK).
+- Open: DCM does not regulate with the CCM PID (D19, off by default); slow large-signal recovery when
+  the window ADC saturates (line step). Ask the user whether to work on either.
+- Before opening the Phase 2 PR: ask the user to approve creating `main` as the base branch.
+
+## Phase 3 — Transistor-level blocks (NEXT)

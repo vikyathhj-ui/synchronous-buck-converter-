@@ -1,0 +1,5 @@
+{
+ "pass": true,
+ "patterns": 400,
+ "source": "tb/test_buck_ctrl.py::test_therm_decode (cocotb, Icarus Verilog)"
+}

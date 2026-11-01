@@ -1,0 +1,10 @@
+{
+ "undershoot": 0.06565847090714017,
+ "recovery_1pct": 2.559375000000001e-05,
+ "down_overshoot": 0.06221555863210759,
+ "down_recovery_1pct": 2.490625000000019e-05,
+ "ilim_trips": 0,
+ "scoreboard_periods": 2600,
+ "scoreboard_mismatches": 0,
+ "source": "tb/test_buck_ctrl.py::test_load_step (cocotb, Icarus Verilog)"
+}

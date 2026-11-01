@@ -235,22 +235,23 @@ resistive loads.
 <!-- AUTO:p1_time -->
 | Quantity | Value | Unit | Kind |
 |---|---|---|---|
-| Load step 15->150 mA: undershoot (switched) | 65.7 | mV | model |
+| Load step 15->150 mA: undershoot (switched) | 65.6 | mV | model |
 |   same, sampled instants only | 65.3 | mV | model |
 |   same, linear sampled model | 64.8 | mV | model |
 |   recovery to +/-1 % | 25.6 | us | model |
-| Load step 150->15 mA: overshoot | 65.8 | mV | model |
+| Load step 150->15 mA: overshoot | 65.9 | mV | model |
 |   recovery to +/-1 % | 24.9 | us | model |
 | Start-up overshoot, no load / full load | -0.01 / -0.00 | % | model |
 | Start-up peak iL, no load / full load | 55 / 205 | mA | model |
 | Start-up current-limit trips | 0 / 0 | - | model |
-| Soft-start VREF ramp time | 0.999 | ms | model |
+| Soft-start VREF ramp time | 1.001 | ms | model |
 | Line step 3.0->3.6 V: max deviation | +174.1 | mV | model |
 | Line step 3.6->3.0 V: max deviation | -169.0 | mV | model |
 | VOUT ripple p-p, 150 mA | 0.78 | mV | model |
 | iL ripple p-p, 150 mA | 53.9 | mA | model |
-| Overload 365 mA: max valley / peak iL | 373 / 382 | mA | model |
-| Overload: trips in 200 periods, min VOUT | 116, 0.049 V | - | model |
+| Overload 365 mA: max valley / peak iL (before FAULT) | 323 / 342 | mA | model |
+| Overload: trips / periods before FAULT, min VOUT | 37 / 99, 0.629 V | - | model |
+| Overload: FAULT after | 99 | us | model |
 <!-- /AUTO:p1_time -->
 
 Plots: `load_step.png`, `startup.png`, `line_step.png`, `limit_cycle_hist.png` and `tap_sweep.png` in

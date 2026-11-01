@@ -109,10 +109,11 @@ def p1_time():
         row("Line step 3.6->3.0 V: max deviation", f"{v('linestep_dn_dev_min')*1e3:+.1f}", "mV", "model"),
         row("VOUT ripple p-p, 150 mA", f"{v('ripple_vout_pp_fullload')*1e3:.2f}", "mV", "model"),
         row("iL ripple p-p, 150 mA", f"{v('ripple_il_pp_fullload')*1e3:.1f}", "mA", "model"),
-        row("Overload 365 mA: max valley / peak iL",
+        row("Overload 365 mA: max valley / peak iL (before FAULT)",
             f"{v('overload_valley_max')*1e3:.0f} / {v('overload_peak_max')*1e3:.0f}", "mA", "model"),
-        row("Overload: trips in 200 periods, min VOUT",
-            f"{v('overload_trips')}, {v('overload_vout_min'):.3f} V", "-", "model"),
+        row("Overload: trips / periods before FAULT, min VOUT",
+            f"{v('overload_trips')} / {v('overload_periods_before_fault')}, {v('overload_vout_min'):.3f} V", "-", "model"),
+        row("Overload: FAULT after", f"{v('overload_fault_after')*1e6:.0f}" if v("overload_fault") else "no fault", "us", "model"),
     ])
 
 
@@ -136,8 +137,41 @@ def p1_limit():
     return "\n".join(lines)
 
 
+def p2(key):
+    return S["phase2"][key]["value"]
+
+
+def p2_tests():
+    lines = ["| Test | Result | Periods checked | Scoreboard mismatches | Key metrics |", "|---|---|---|---|---|"]
+    res = p2("cocotb_results") if "cocotb_results" in S.get("phase2", {}) else {}
+    for name, st in res.items():
+        m = S["phase2"].get(name, {}).get("value", {})
+        keys = [k for k in m if k not in ("scoreboard_periods", "scoreboard_mismatches", "pass")]
+        def fmt(x):
+            if isinstance(x, float):
+                return f"{x:.4g}"
+            return str(x)
+        lines.append(f"| {name} | {st} | {m.get('scoreboard_periods', '-')} | {m.get('scoreboard_mismatches', '-')} | "
+                     + "; ".join(f"{k} = {fmt(m[k])}" for k in keys[:6]) + " |")
+    return "\n".join(lines)
+
+
+def p2_checks():
+    rows = []
+    if "lint" in S.get("phase2", {}):
+        l = p2("lint")
+        rows.append(row("Verilator -Wall lint", f"{l['warnings']} warnings, {l['errors']} errors", "-", "lint"))
+    if "formal" in S.get("phase2", {}):
+        rows.append(row("SymbiYosys k-induction (formal/buck_ctrl.sby)", p2("formal"), "-", "formal"))
+    if "functional_coverage_pct" in S.get("phase2", {}):
+        for k, v in p2("functional_coverage_pct").items():
+            rows.append(row(f"coverage {k}", f"{v:.1f}", "%", "rtl-sim"))
+    return tbl(rows)
+
+
 BLOCKS = {"p1_analysis": p1_analysis, "p1_design": p1_design, "p1_quant": p1_quant,
-          "p1_robust": p1_robust, "p1_time": p1_time, "p1_limit": p1_limit}
+          "p1_robust": p1_robust, "p1_time": p1_time, "p1_limit": p1_limit,
+          "p2_tests": p2_tests, "p2_checks": p2_checks}
 
 
 def main():

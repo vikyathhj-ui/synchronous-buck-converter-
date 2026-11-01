@@ -6,7 +6,8 @@ import numpy as np
 
 from model.buck import Buck, Dpwm, SwitchedPlant
 from model.controller import Adc, FixedPid, closed_loop_matrix, design, margins
-from model.sim import open_loop_response, simulate
+from model.ctrl_ref import CCM, Regs, therm_decode, therm_encode
+from model.sim import open_loop_response, simulate, simulate_clocked
 
 B, DP, ADC = Buck(), Dpwm(), Adc()
 
@@ -20,7 +21,7 @@ def test_open_loop_dc_matches_averaged():
         p.period(D * b.Ts, 0.0, b.vin)
     vs = []
     for _ in range(10):
-        _, dense = p.period(D * b.Ts, 0.0, b.vin, nsub=32)
+        _, _, dense = p.period(D * b.Ts, 0.0, b.vin, nsub=32)
         vs += [x[1] for x in dense]
     assert abs(np.mean(vs) - b.vout) < 2e-3
 
@@ -83,6 +84,27 @@ def test_fixed_pid_integrator_bounded():
 
 def test_closed_loop_regulates_without_limit_cycle():
     b = replace(B, g_load=0.075 / 1.8)
-    r = simulate(b, DP, ADC, G.ints(F), F, n=4000)
+    kp, ki, kd = G.ints(F)
+    r = simulate(b, DP, Regs(kp=kp, ki=ki, kd=kd), n=4000, frac=F)
     assert len(np.unique(r.d[2500:])) == 1
     assert np.all(r.e[2500:] == 0)
+
+
+def test_therm_roundtrip_and_bubble():
+    for i in range(-900, 900):
+        err = (i + 0.37) * 1e-4   # avoid exact threshold ties
+        assert therm_decode(therm_encode(err)) == ADC.code(err)
+    # single bubble inside the thermometer is corrected
+    w = therm_encode(0.0)                    # 8 ones: bits 0..7
+    assert therm_decode(w ^ (1 << 3)) == 0   # hole at bit 3
+    assert therm_decode(w | (1 << 10)) == 0  # isolated one at bit 10
+
+
+def test_clocked_and_period_sims_agree_in_ccm():
+    kp, ki, kd = G.ints(F)
+    b = replace(B, g_load=0.075 / 1.8)
+    r1 = simulate(b, DP, Regs(kp=kp, ki=ki, kd=kd), n=1600, frac=F)
+    r2, _ = simulate_clocked(b, DP, Regs(kp=kp, ki=ki, kd=kd), n=1600, frac=F)
+    assert np.array_equal(r1.d, r2.d)
+    assert np.max(np.abs(r1.v - r2.v)) < 1e-9
+    assert r1.mode[-1] == CCM

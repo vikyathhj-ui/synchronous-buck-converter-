@@ -9,3 +9,10 @@ __pycache__/
 *.pyc
 *.so
 results.xml
+# cocotb / sby outputs
+tb/sim_build/
+tb/results.xml
+tb/sim_full.log
+tb/__pycache__/
+formal/buck_ctrl/
+results/phase2/*.npy
