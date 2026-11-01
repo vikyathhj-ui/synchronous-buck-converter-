@@ -18,7 +18,7 @@
 - Open items (CONTROL.md section 8): derivative kicks (kd = 35); valley limit sampled once per period;
   window-ADC common mode (feedback divider); line step about +/-170 mV (VIN feedforward would need a VIN sensor).
 
-## Phase 2 — Controller RTL and closed-loop verification (DONE, PR pending user answer on `main`)
+## Phase 2 — Controller RTL and closed-loop verification (DONE, PR #1 open into main, user merges)
 - `rtl/buck_ctrl_top.v`, `rtl/therm2bin.v`; golden model `model/ctrl_ref.py`; per-clock golden sim
   `model/sim.py: simulate_clocked`; timing contract in `docs/ARCHITECTURE.md` (DECISIONS D12–D19).
 - cocotb bench `tb/` (bit-exact scoreboard every period, per-clock Python plant): 11/11 pass, 0
@@ -27,6 +27,6 @@
   `docs/VERIFICATION.md`. CI: `.github/workflows/ci.yml` (lint, model tests, formal, cocotb QUICK).
 - Open: DCM does not regulate with the CCM PID (D19, off by default); slow large-signal recovery when
   the window ADC saturates (line step). Ask the user whether to work on either.
-- Before opening the Phase 2 PR: ask the user to approve creating `main` as the base branch.
+- `main` created at 5a9c47a and set as default (user approved). PR #1 = Phases 1-2. After the user merges, fast-forward rework/buck to origin/main if needed.
 
 ## Phase 3 — Transistor-level blocks (NEXT)
