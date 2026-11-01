@@ -1,0 +1,56 @@
+== Tools ==
+ngspice                      found    ** ngspice-47 : Circuit level simulation program
+verilator                    found    Verilator 5.050 2026-07-01 rev v5.050
+iverilog                     found    Icarus Verilog version 14.0 (devel) (s20260301-391-g64f13540-dirty)
+yosys                        found    Yosys 0.68 (git sha1 38e001a6f, Release, GNU /usr/bin/c++ 13.3.0)
+sby                          found    
+yosys-smtbmc                 found    
+yices-smt2                   found    Yices 2.7.0
+boolector                    absent   (optional)
+z3                           absent   (optional)
+bitwuzla                     absent   (optional)
+python3                      found    Python 3.12.3
+librelane                    found    LibreLane v3.1.0.dev3
+openlane                     absent   (optional)
+openroad                     found    26Q3-1621-g21512b0ab 
+sta                          found    3.1.0
+magic                        found    8.3.681
+netgen                       found    
+klayout                      found    KLayout 0.30.11
+xschem                       found    XSCHEM V3.4.8RC
+
+== Python packages ==
+numpy                        found    2.5.2
+scipy                        found    1.18.0
+matplotlib                   found    3.11.1
+control                      found    0.10.2
+cocotb                       found    2.0.1
+cocotb_coverage              found    2.0
+pytest                       found    9.1.1
+
+== PDK ==
+PDK_ROOT                     found    /foss/pdks PDK=sky130A SCL=sky130_fd_sc_hd
+nfet_g5v0d10v5               found    referenced in 29 model files
+pfet_g5v0d10v5               found    referenced in 29 model files
+sky130_fd_sc_hd__tt_025C_1v80.lib found    
+hvl tt_025C_3v30_lv1v80      found    
+    sky130_fd_sc_hvl__lsbufhv2hv_hl_1
+    sky130_fd_sc_hvl__lsbufhv2hv_lh_1
+    sky130_fd_sc_hvl__lsbufhv2lv_1
+    sky130_fd_sc_hvl__lsbufhv2lv_simple_1
+    sky130_fd_sc_hvl__lsbuflv2hv_1
+    sky130_fd_sc_hvl__lsbuflv2hv_clkiso_hlkg_3
+    sky130_fd_sc_hvl__lsbuflv2hv_isosrchvaon_1
+    sky130_fd_sc_hvl__lsbuflv2hv_symmetric_1
+
+== Smoke test 1: 5 V devices load in ngspice (tt) ==
+    -i(vd) = 3.429229e-03
+    i(vdp) = 1.642020e-03
+5V device op                 PASS     
+
+== Smoke test 2: ngspice d_cosim + Verilator (vlnggen) ==
+vlnggen build                PASS     /tmp/tmp.MDIc9R1raL/counter.so
+d_cosim run                  PASS     count@550n=6.00000e+00 (expect 6), count@1.01u=1.10000e+01 (expect 11)
+
+work dir: /tmp/tmp.MDIc9R1raL
+RESULT: ALL OK

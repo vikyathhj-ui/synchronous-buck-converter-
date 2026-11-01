@@ -1,0 +1,11 @@
+*.raw
+*.log
+*.vcd
+*.fst
+runs/
+sim_build/
+obj_dir/
+__pycache__/
+*.pyc
+*.so
+results.xml
