@@ -1,0 +1,12 @@
+** sch_path: /foss/projects/synchronous-buck-converter-/xschem/power_fets.sch
+.subckt power_fets vin sw hs_g ls_g vss
+*.PININFO vin:B sw:B hs_g:B ls_g:B vss:B
+XHS0 sw hs_g vin vin sky130_fd_pr__pfet_g5v0d10v5 L=0.5 W=10 nf=1 m=480
+XHS1 sw hs_g vin vin sky130_fd_pr__pfet_g5v0d10v5 L=0.5 W=10 nf=1 m=480
+XHS2 sw hs_g vin vin sky130_fd_pr__pfet_g5v0d10v5 L=0.5 W=10 nf=1 m=480
+XHS3 sw hs_g vin vin sky130_fd_pr__pfet_g5v0d10v5 L=0.5 W=10 nf=1 m=480
+XLS0 sw ls_g vss vss sky130_fd_pr__nfet_g5v0d10v5 L=0.5 W=10 nf=1 m=220
+XLS1 sw ls_g vss vss sky130_fd_pr__nfet_g5v0d10v5 L=0.5 W=10 nf=1 m=220
+XLS2 sw ls_g vss vss sky130_fd_pr__nfet_g5v0d10v5 L=0.5 W=10 nf=1 m=220
+XLS3 sw ls_g vss vss sky130_fd_pr__nfet_g5v0d10v5 L=0.5 W=10 nf=1 m=220
+.ends

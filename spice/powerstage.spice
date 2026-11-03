@@ -1,0 +1,61 @@
+* Power stage and gate drivers (VIN domain, sky130 g5v0d10v5 devices, L = 0.5 um, 10 um fingers).
+* Sizing: scripts/size_power.py -> results/phase3/sizing.json (HS 19.2 mm, LS 8.8 mm).
+* Ground ports are named vss: ngspice treats a node named gnd as global ground even inside a
+* subckt, which bypassed the 0 V current-sense source on the LS source.
+* Multipliers use m= (ngspice ignores the PDK mult= on subckt instances).
+
+* ---------------------------------------------------------------- power FETs, 4 segments each
+.subckt power_fets vin sw hs_g ls_g vss
+XHS0 sw hs_g vin vin sky130_fd_pr__pfet_g5v0d10v5 W=10 L=0.5 m=480 mult=480
+XHS1 sw hs_g vin vin sky130_fd_pr__pfet_g5v0d10v5 W=10 L=0.5 m=480 mult=480
+XHS2 sw hs_g vin vin sky130_fd_pr__pfet_g5v0d10v5 W=10 L=0.5 m=480 mult=480
+XHS3 sw hs_g vin vin sky130_fd_pr__pfet_g5v0d10v5 W=10 L=0.5 m=480 mult=480
+XLS0 sw ls_g vss vss sky130_fd_pr__nfet_g5v0d10v5 W=10 L=0.5 m=220 mult=220
+XLS1 sw ls_g vss vss sky130_fd_pr__nfet_g5v0d10v5 W=10 L=0.5 m=220 mult=220
+XLS2 sw ls_g vss vss sky130_fd_pr__nfet_g5v0d10v5 W=10 L=0.5 m=220 mult=220
+XLS3 sw ls_g vss vss sky130_fd_pr__nfet_g5v0d10v5 W=10 L=0.5 m=220 mult=220
+.ends
+
+* ---------------------------------------------------------------- HS driver: 5 inverters, taper ~4
+* in = HS_ON at VIN level (high = HS on); out drives the PMOS gate (low = on). Per stage:
+* NMOS / PMOS width per finger x fingers (um). Final stage 256 um / 768 um.
+.subckt drv_hs in out vdd vss
+XP1 h1 in vdd vdd sky130_fd_pr__pfet_g5v0d10v5 W=3 L=0.5 m=1 mult=1
+XN1 h1 in vss vss sky130_fd_pr__nfet_g5v0d10v5 W=1 L=0.5 m=1 mult=1
+XP2 h2 h1 vdd vdd sky130_fd_pr__pfet_g5v0d10v5 W=6 L=0.5 m=2 mult=2
+XN2 h2 h1 vss vss sky130_fd_pr__nfet_g5v0d10v5 W=4 L=0.5 m=1 mult=1
+XP3 h3 h2 vdd vdd sky130_fd_pr__pfet_g5v0d10v5 W=8 L=0.5 m=6 mult=6
+XN3 h3 h2 vss vss sky130_fd_pr__nfet_g5v0d10v5 W=8 L=0.5 m=2 mult=2
+XP4 h4 h3 vdd vdd sky130_fd_pr__pfet_g5v0d10v5 W=8 L=0.5 m=24 mult=24
+XN4 h4 h3 vss vss sky130_fd_pr__nfet_g5v0d10v5 W=8 L=0.5 m=8 mult=8
+XP5 out h4 vdd vdd sky130_fd_pr__pfet_g5v0d10v5 W=8 L=0.5 m=96 mult=96
+XN5 out h4 vss vss sky130_fd_pr__nfet_g5v0d10v5 W=8 L=0.5 m=32 mult=32
+.ends
+
+* ---------------------------------------------------------------- LS driver: 4 inverters, taper ~4
+* in = LS_ON at VIN level (high = LS on); out drives the NMOS gate (high = on).
+* Final stage pull-down tripled to 384 um to hold the LS gate against the HS turn-on dV/dt
+* (the Cgd x dV/dt bump reached 0.83 V at fs/125C/3.6V with 128 um; 0.42 V now).
+.subckt drv_ls in out vdd vss
+XP1 l1 in vdd vdd sky130_fd_pr__pfet_g5v0d10v5 W=6 L=0.5 m=1 mult=1
+XN1 l1 in vss vss sky130_fd_pr__nfet_g5v0d10v5 W=2 L=0.5 m=1 mult=1
+XP2 l2 l1 vdd vdd sky130_fd_pr__pfet_g5v0d10v5 W=8 L=0.5 m=3 mult=3
+XN2 l2 l1 vss vss sky130_fd_pr__nfet_g5v0d10v5 W=8 L=0.5 m=1 mult=1
+XP3 l3 l2 vdd vdd sky130_fd_pr__pfet_g5v0d10v5 W=8 L=0.5 m=16 mult=16
+XN3 l3 l2 vss vss sky130_fd_pr__nfet_g5v0d10v5 W=8 L=0.5 m=6 mult=6
+XP4 out l3 vdd vdd sky130_fd_pr__pfet_g5v0d10v5 W=8 L=0.5 m=48 mult=48
+XN4 out l3 vss vss sky130_fd_pr__nfet_g5v0d10v5 W=8 L=0.5 m=48 mult=48
+.ends
+
+* ---------------------------------------------------------------- gate-state sensors (replica threshold)
+* hs_on_s is high while the power PMOS conducts: a 10 um replica PMOS (same Vt) on the HS gate
+* against a weak long-channel NMOS pull-down. ls_on_s is high while the power NMOS conducts.
+.subckt gate_sense vin hs_g ls_g hs_on_s ls_on_s vss
+XPS hs_on_s hs_g vin vin sky130_fd_pr__pfet_g5v0d10v5 W=10 L=0.5
+XPD hs_on_s vin vss vss sky130_fd_pr__nfet_g5v0d10v5 W=0.42 L=8
+XNS lsb ls_g vss vss sky130_fd_pr__nfet_g5v0d10v5 W=4 L=0.5
+XNU lsb vss vin vin sky130_fd_pr__pfet_g5v0d10v5 W=0.42 L=8
+* invert so ls_on_s is high while the LS conducts
+XNI ls_on_s lsb vin vin sky130_fd_pr__pfet_g5v0d10v5 W=2 L=0.5
+XNJ ls_on_s lsb vss vss sky130_fd_pr__nfet_g5v0d10v5 W=1 L=0.5
+.ends

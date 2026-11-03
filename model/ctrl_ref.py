@@ -17,6 +17,14 @@ Timing contract for period k (cycle numbers are cnt values in period k):
                    at 255); FAULT when it reaches fault_n. A sustained trip rate above 25 % faults;
                    isolated trips do not. (A consecutive-trip counter never fired in a hard overload,
                    because each suppressed pulse lets the valley fall below the limit.)
+  cycle 40         tdc_launch rises: an edge enters the 72-element replica delay line; at the end of
+                   cycle 40 (one Tclk later) the 72 taps are sampled; n_meas = number of ones
+                   (elements passed in one clock period).
+  edge 0           delay-line calibration: n_meas of the previous period is added to a 16-period
+                   sum; after 16 periods the sum (N with 4 fractional bits) replaces n_cal_q4 if it
+                   differs by more than 8 (half an element), then the sum restarts.
+                   tap_sel = (fine * n_cal_q4 + 64) >> 7 = round(fine * N / 8) selects the main
+                   delay-line tap, so the fine step is Tclk/8 to within one element.
   cycles > coarse  LS phase. In DCM a zero-cross (zc_cmp = 1) seen in such a cycle turns LS off
                    from the next cycle until the end of the period. The zc seen in a period is also
                    counted for the CCM <-> DCM decision taken in the next period.
@@ -36,6 +44,11 @@ VREF_MIN, VREF_MAX = 100, 250   # allowed VREF register range (1.0 .. 2.5 V)
 SS_LEN_MIN = 256    # at most one VREF code per period
 CNT_SAT = 255       # 8-bit saturating counters
 TRIP_UP, TRIP_DN = 3, 1   # fault score: +3 per current-limited period, -1 per clean period
+NTDC = 72           # replica delay-line elements (TDC length)
+CAL_BLOCK = 16      # measurements per calibration update
+CAL_HYST = 8        # update threshold, N x 16 units (0.5 element)
+N_CAL_RESET_Q4 = 640   # N = 40 at reset (element = Tclk/40)
+TDC_CYCLE = 40      # cycle in which the TDC edge is launched
 
 
 @dataclass
@@ -83,11 +96,13 @@ def therm_decode(therm):
     return sum(corr) - 8
 
 
-def therm_encode(err, lsb=0.010):
-    """Ideal comparators: thermometer word for an error voltage (VREF - VOUT)."""
+def therm_encode(err, lsb=0.010, offsets=None):
+    """Comparators: thermometer word for an error voltage (VREF - VOUT). `offsets` (15 values, V
+    referred to VOUT) shift each threshold; None = ideal comparators."""
     w = 0
     for i in range(15):
-        if err >= (i - 7.5) * lsb:
+        th = (i - 7.5) * lsb + (offsets[i] if offsets is not None else 0.0)
+        if err >= th:
             w |= 1 << i
     return w
 
@@ -109,6 +124,9 @@ class CtrlRef:
         self.zc_run = 0
         self.nzc_run = 0
         self.fault_clr = False
+        self.cal_sum = 0
+        self.cal_cnt = 0
+        self.n_cal_q4 = N_CAL_RESET_Q4
 
     # ---- PID (identical integer arithmetic to rtl/pid.v) ----
     def _pid(self, e, hold):
@@ -130,12 +148,29 @@ class CtrlRef:
         self.zc_run = 0
         self.nzc_run = 0
 
-    def period(self, e, trip, zc_prev):
+    @staticmethod
+    def tap_of(fine, n_cal_q4):
+        return (fine * n_cal_q4 + 64) >> 7
+
+    def calibrate(self, n_meas):
+        """Edge-0 calibration update with the TDC count measured in the previous period."""
+        if n_meas is None:
+            return
+        self.cal_sum += min(int(n_meas), NTDC)
+        self.cal_cnt += 1
+        if self.cal_cnt == CAL_BLOCK:
+            if abs(self.cal_sum - self.n_cal_q4) > CAL_HYST:
+                self.n_cal_q4 = self.cal_sum
+            self.cal_sum = 0
+            self.cal_cnt = 0
+
+    def period(self, e, trip, zc_prev, n_meas=None):
         """Advance one switching period.
 
         e       : ADC code sampled at edge 0 of this period (therm_decode of the comparators)
         trip    : valley comparator sampled in cycle 63 of the previous period
         zc_prev : a qualified zero-cross was seen during the previous period
+        n_meas  : TDC count measured in the previous period (None: no calibration input)
         Returns the controls that are in force during THIS period plus the VREF code that the DAC
         takes at the end of cycle 3 (and that the next sample will see).
         """
@@ -144,7 +179,9 @@ class CtrlRef:
         running = mode in RUN
         duty = min(self.duty_cur, r.dmax)     # re-clamped at the period boundary (DMAX may change)
         hs_en = running and duty != 0 and not trip
+        self.calibrate(n_meas)
         out = {"mode": mode, "hs_en": hs_en, "duty": duty if hs_en else 0,
+               "tap_sel": self.tap_of(duty & 7, self.n_cal_q4), "n_cal_q4": self.n_cal_q4,
                "ls_en": running, "dcm": mode == DCM}
 
         d_next = 0

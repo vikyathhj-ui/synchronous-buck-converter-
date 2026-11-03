@@ -1,0 +1,11 @@
+** sch_path: /foss/projects/synchronous-buck-converter-/xschem/adc_div.sch
+.subckt adc_div vout vdiv vss
+*.PININFO vout:B vdiv:B vss:B
+XD0 d1 vout vss sky130_fd_pr__res_xhigh_po_1p41 L=4 mult=1
+XD1 d2 d1 vss sky130_fd_pr__res_xhigh_po_1p41 L=4 mult=1
+XD2 vdiv d2 vss sky130_fd_pr__res_xhigh_po_1p41 L=4 mult=1
+XD3 d4 vdiv vss sky130_fd_pr__res_xhigh_po_1p41 L=4 mult=1
+XD4 d5 d4 vss sky130_fd_pr__res_xhigh_po_1p41 L=4 mult=1
+XD5 vss d5 vss sky130_fd_pr__res_xhigh_po_1p41 L=4 mult=1
+XCD vdiv vss sky130_fd_pr__cap_mim_m3_1 W=70 L=70
+.ends

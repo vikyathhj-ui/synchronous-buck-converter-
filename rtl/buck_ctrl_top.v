@@ -6,11 +6,15 @@
 //   cycle 0   new period: mode / duty decided last period take effect; pwm_set high unless the
 //             converter is stopped, the duty is 0 or the valley comparator tripped.
 //             adc_sample high: the window ADC samples VOUT at this edge.
-//   cycle 1   ADC thermometer registered and decoded (therm2bin).
+//   end of 1  ADC thermometer registered and decoded (therm2bin): the comparators have two clocks
+//             (31 ns) to resolve, which the cold slow corners need.
 //   cycle 2   PID products registered.
 //   cycle 3   PID sum, integrator, VREF ramp, fault score, CCM/DCM counters and the mode FSM
 //             update at the end of this cycle (registers *_nxt, vref_code).
-//   cycle coarse  pwm_rst high; the analog delay line ends the HS pulse fine_sel taps later.
+//   cycle coarse  pwm_rst high; the analog delay line ends the HS pulse at the tap selected by
+//             tap_sel = round(fine * N / 8), N = calibrated delay elements per clock period.
+//   cycle 40  tdc_launch rises into the 72-element replica line; its taps are sampled at the end
+//             of cycle 40 (one Tclk later) and counted in cycle 41 (delay-line calibration).
 //   cycles > coarse  LS phase; in DCM a zero-cross turns LS off for the rest of the period.
 `default_nettype none
 
@@ -38,7 +42,9 @@ module buck_ctrl_top #(
     output reg         ilim_sample,
     output reg         pwm_set,
     output reg         pwm_rst,
-    output reg  [2:0]  fine_sel,
+    output reg  [5:0]  tap_sel,       // main delay-line tap for the fine code (calibrated)
+    output reg         tdc_launch,    // edge into the replica delay line (cycles 40..47)
+    input  wire [71:0] tdc_therm,     // replica delay-line taps
     output reg         ls_en,
     output reg  [7:0]  vref_code,     // VREF DAC, 10 mV / code
     output wire [7:0]  ilim_code,     // current-limit threshold DAC, 2 mA / code
@@ -72,6 +78,13 @@ module buck_ctrl_top #(
     reg [15:0] acc;
     reg [7:0]  trip_score, zc_run, nzc_run;
     reg [16:0] ss_acc;
+    // delay-line calibration (model/ctrl_ref.py: CtrlRef.calibrate)
+    reg [71:0] tdc_q;
+    reg [6:0]  n_meas;
+    reg        n_meas_valid;
+    reg [10:0] cal_sum;
+    reg [3:0]  cal_cnt;
+    reg [10:0] n_cal_q4;
     reg signed [23:0] p_kp, p_ki, p_kd;
 
     assign pready = 1'b1;
@@ -100,7 +113,7 @@ module buck_ctrl_top #(
             r_dmax <= 9'd496;
             r_fault_n <= 8'd64;
         end else begin
-            if (cnt == 6'd2)
+            if (cnt == 6'd3)
                 fault_clr_pend <= 1'b0;          // consumed by the FSM in this cycle
             if (apb_wr) begin
                 case (paddr[5:2])
@@ -143,6 +156,7 @@ module buck_ctrl_top #(
             4'h9:    prdata = {24'd0, r_fault_n};
             4'hA:    prdata = {6'd0, hs_en, duty_cur, vref_code, e_q, 1'b0, mode};   // STATUS
             4'hB:    prdata = ID;
+            4'hC:    prdata = {21'd0, n_cal_q4};                                   // CAL
             default: prdata = 32'd0;
         endcase
     end
@@ -218,6 +232,26 @@ module buck_ctrl_top #(
     wire loop_rst  = changed && ((nxt == IDLE) || (nxt == FAULT) ||
                                  ((nxt == SS) && ((mode == IDLE) || (mode == FAULT))));
 
+    // delay-line calibration: popcount of the sampled replica taps, 16-period average with a
+    // half-element hysteresis, tap = (fine * N_q4 + 64) >> 7
+    function [6:0] popcount72(input [71:0] v);
+        integer k;
+        begin
+            popcount72 = 7'd0;
+            for (k = 0; k < 72; k = k + 1)
+                popcount72 = popcount72 + {6'd0, v[k]};
+        end
+    endfunction
+    wire [10:0] cal_sum_n = cal_sum + (n_meas_valid ? {4'd0, n_meas} : 11'd0);
+    wire        cal_block = n_meas_valid && (cal_cnt == 4'd15);
+    wire [10:0] cal_diff  = (cal_sum_n > n_cal_q4) ? cal_sum_n - n_cal_q4 : n_cal_q4 - cal_sum_n;
+    wire [10:0] n_cal_new = (cal_block && (cal_diff > 11'd8)) ? cal_sum_n : n_cal_q4;
+    // (fine * N_q4 + 64) >> 7: bits [6:0] are the rounding remainder, bit 13 is always 0
+    // because 7 * 1152 + 64 < 2^13
+    /* verilator lint_off UNUSEDSIGNAL */
+    wire [13:0] tap_prod  = duty_nxt_cl[2:0] * n_cal_new + 14'd64;
+    /* verilator lint_on UNUSEDSIGNAL */
+
     // ------------------------------------------------------------------ sequential datapath
     always @(posedge clk or negedge rst_n) begin
         if (!rst_n) begin
@@ -246,11 +280,30 @@ module buck_ctrl_top #(
             ilim_sample <= 1'b0;
             pwm_set <= 1'b0;
             pwm_rst <= 1'b0;
-            fine_sel <= 3'd0;
+            tap_sel <= 6'd0;
+            tdc_launch <= 1'b0;
+            tdc_q <= 72'd0;
+            n_meas <= 7'd0;
+            n_meas_valid <= 1'b0;
+            cal_sum <= 11'd0;
+            cal_cnt <= 4'd0;
+            n_cal_q4 <= 11'd640;
             ls_en <= 1'b0;
         end else begin
             cnt <= cnt + 6'd1;
             ilim_sample <= (cnt == 6'd62);
+
+            // replica-line TDC: launch high in cycles 40..47, sample at the end of cycle 40
+            if (cnt == 6'd39)
+                tdc_launch <= 1'b1;
+            else if (cnt == 6'd47)
+                tdc_launch <= 1'b0;
+            if (cnt == 6'd40)
+                tdc_q <= tdc_therm;
+            if (cnt == 6'd41) begin
+                n_meas <= popcount72(tdc_q);
+                n_meas_valid <= 1'b1;
+            end
 
             // period boundary (edge at the end of cycle 63)
             if (cnt == 6'd63) begin
@@ -261,7 +314,12 @@ module buck_ctrl_top #(
                 trip_q <= ilim_cmp;
                 pwm_set <= hs_en_new;
                 pwm_rst <= hs_en_new && (duty_nxt_cl[8:3] == 6'd0);
-                fine_sel <= duty_nxt_cl[2:0];
+                tap_sel <= tap_prod[12:7];
+                if (n_meas_valid) begin
+                    n_cal_q4 <= n_cal_new;
+                    cal_sum <= cal_block ? 11'd0 : cal_sum_n;
+                    cal_cnt <= cal_block ? 4'd0 : cal_cnt + 4'd1;
+                end
                 adc_sample <= 1'b1;
                 ls_en <= running_nxt;
                 zc_prev <= zc_seen | zc_q;
@@ -277,19 +335,19 @@ module buck_ctrl_top #(
                 end
             end
 
-            // cycle 1: register the ADC result
-            if (cnt == 6'd0)
+            // end of cycle 1: register the ADC result (two clocks after the sampling edge)
+            if (cnt == 6'd1)
                 e_q <= e_in;
 
             // cycle 2: PID products
-            if (cnt == 6'd1) begin
+            if (cnt == 6'd2) begin
                 p_kp <= $signed({12'd0, r_kp}) * e_x;
                 p_ki <= $signed({12'd0, r_ki}) * e_x;
                 p_kd <= $signed({12'd0, r_kd}) * de_x;
             end
 
             // cycle 3: loop update and mode decision
-            if (cnt == 6'd2) begin
+            if (cnt == 6'd3) begin
                 if (running) begin
                     trip_score <= trip_score_u;
                     zc_run <= zc_run_u;
@@ -339,6 +397,10 @@ module buck_ctrl_top #(
             end
             if (pwm_set)
                 assert (hs_en);
+            // calibration state stays in range (sum of at most 16 counts of at most 72)
+            assert (cal_sum <= 11'd72 * {7'd0, cal_cnt});
+            assert (n_cal_q4 <= 11'd1152);
+            assert (n_meas <= 7'd72);
         end
     end
 `endif

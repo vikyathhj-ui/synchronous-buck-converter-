@@ -1,0 +1,29 @@
+v {xschem version=3.4.7RC file_version=1.2}
+G {}
+K {type=primitive
+format="@name @pinlist sky130_fd_sc_hvl__lsbuflv2hv_1"
+template="name=x1"}
+V {}
+S {}
+E {}
+
+L 4 -60 -10 60 -10 {}
+L 4 -60 150 60 150 {}
+L 4 -60 -10 -60 150 {}
+L 4 60 -10 60 150 {}
+B 5 -62.5 7.5 -57.5 12.5 {name=A dir=inout}
+T {A} -55 4 0 0 0.15 0.15 {}
+B 5 -62.5 27.5 -57.5 32.5 {name=LVPWR dir=inout}
+T {LVPWR} -55 24 0 0 0.15 0.15 {}
+B 5 -62.5 47.5 -57.5 52.5 {name=VGND dir=inout}
+T {VGND} -55 44 0 0 0.15 0.15 {}
+B 5 -62.5 67.5 -57.5 72.5 {name=VNB dir=inout}
+T {VNB} -55 64 0 0 0.15 0.15 {}
+B 5 -62.5 87.5 -57.5 92.5 {name=VPB dir=inout}
+T {VPB} -55 84 0 0 0.15 0.15 {}
+B 5 -62.5 107.5 -57.5 112.5 {name=VPWR dir=inout}
+T {VPWR} -55 104 0 0 0.15 0.15 {}
+B 5 -62.5 127.5 -57.5 132.5 {name=X dir=inout}
+T {X} -55 124 0 0 0.15 0.15 {}
+T {lsbuflv2hv_1} -55 155 0 0 0.2 0.2 {}
+T {@name} -55 -25 0 0 0.2 0.2 {}

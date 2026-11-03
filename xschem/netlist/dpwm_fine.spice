@@ -1,0 +1,33 @@
+** sch_path: /foss/projects/synchronous-buck-converter-/xschem/dpwm_fine.sch
+.subckt dpwm_fine pwm_set pwm_rst s0 s1 s2 hs_pwm vdd vss
+*.PININFO pwm_set:B pwm_rst:B s0:B s1:B s2:B hs_pwm:B vdd:B vss:B
+XT1 pwm_rst d1 vdd vss dt_tap
+XT2 d1 d2 vdd vss dt_tap
+XT3 d2 d3 vdd vss dt_tap
+XT4 d3 d4 vdd vss dt_tap
+XT5 d4 d5 vdd vss dt_tap
+XT6 d5 d6 vdd vss dt_tap
+XT7 d6 d7 vdd vss dt_tap
+XM0 pwm_rst d1 s0 vss vss vdd vdd m01 sky130_fd_sc_hd__mux2_1
+XM1 d2 d3 s0 vss vss vdd vdd m23 sky130_fd_sc_hd__mux2_1
+XM2 d4 d5 s0 vss vss vdd vdd m45 sky130_fd_sc_hd__mux2_1
+XM3 d6 d7 s0 vss vss vdd vdd m67 sky130_fd_sc_hd__mux2_1
+XM4 m01 m23 s1 vss vss vdd vdd m03 sky130_fd_sc_hd__mux2_1
+XM5 m45 m67 s1 vss vss vdd vdd m47 sky130_fd_sc_hd__mux2_1
+XM6 m03 m47 s2 vss vss vdd vdd rst_d sky130_fd_sc_hd__mux2_1
+XL1 rst_d qb vss vss vdd vdd hs_pwm sky130_fd_sc_hd__nor2_1
+XL2 pwm_set hs_pwm vss vss vdd vdd qb sky130_fd_sc_hd__nor2_1
+.ends
+
+* expanding   symbol:  dt_tap.sym # of pins=4
+** sym_path: /foss/projects/synchronous-buck-converter-/xschem/dt_tap.sym
+** sch_path: /foss/projects/synchronous-buck-converter-/xschem/dt_tap.sch
+.subckt dt_tap in out vdd vss
+*.PININFO in:B out:B vdd:B vss:B
+X1 in vss vss vdd vdd a1 sky130_fd_sc_hd__dlygate4sd3_1
+X2 a1 vss vss vdd vdd a2 sky130_fd_sc_hd__dlygate4sd3_1
+X3 a2 vss vss vdd vdd a3 sky130_fd_sc_hd__dlygate4sd3_1
+X4 a3 vss vss vdd vdd a4 sky130_fd_sc_hd__dlygate4sd3_1
+X5 a4 vss vss vdd vdd out sky130_fd_sc_hd__dlygate4sd3_1
+.ends
+

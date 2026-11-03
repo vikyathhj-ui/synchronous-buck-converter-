@@ -76,7 +76,7 @@ async def apb_read(dut, addr):
 
 async def reset_only(dut):
     Clock(dut.clk, TCLK_NS, unit="ns").start()
-    for n in ("psel", "penable", "pwrite", "paddr", "pwdata", "adc_therm", "ilim_cmp", "zc_cmp"):
+    for n in ("psel", "penable", "pwrite", "paddr", "pwdata", "adc_therm", "ilim_cmp", "zc_cmp", "tdc_therm"):
         getattr(dut, n).value = 0
     dut.rst_n.value = 0
     await ClockCycles(dut.clk, 5)
@@ -89,7 +89,8 @@ async def test_registers(dut):
     await reset_only(dut)
     r = Regs()
     exp = {"ctrl": 0, "vref": r.vref, "kp": r.kp, "ki": r.ki, "kd": r.kd, "dt": (r.dt_lh << 4) | r.dt_hl,
-           "ilim": r.ilim, "ss_len": r.ss_len, "dmax": r.dmax, "fault_n": r.fault_n, "id": 0xB0C40001}
+           "ilim": r.ilim, "ss_len": r.ss_len, "dmax": r.dmax, "fault_n": r.fault_n, "id": 0xB0C40001,
+           "cal": 640}
     for name, val in exp.items():
         got = await apb_read(dut, ADDR[name])
         assert got == val, f"reset {name}: {got:#x} != {val:#x}"
@@ -396,3 +397,35 @@ async def test_mode_transitions(dut):
     save("test_mode_transitions", {"modes_seen": sorted(int(x) for x in seen),
                                    "dcm_overload_exit_periods": dcm_exit_periods}, bench)
     assert_clean(bench)
+
+
+@cocotb.test()
+async def test_dpwm_calibration(dut):
+    """Delay-line calibration: fastest (N = 64) and slowest (N = 22) measured element delays, a
+    step between them (temperature drift), and +/-1 wobble (hysteresis). Bit-exact scoreboard on
+    tap_sel throughout; one duty code in each settled window."""
+    b = replace(B, g_load=0.075 / VSET)
+    bench = Bench(dut, b, t_elem=0.244e-9)
+    await bench.start()
+    await enable(bench)
+    await bench.run(1600)
+    a = bench.arrays()
+    fast_codes = sorted(set(a["duty"][1200:1600].tolist()))
+    bench.set_t_elem(0.698e-9)
+    await bench.run(1000)
+    a = bench.arrays()
+    slow_codes = sorted(set(a["duty"][2200:2600].tolist()))
+    n_cal_after_step = bench.ref.n_cal_q4
+    # one-element wobble: 0.698 ns -> N = 22, 0.672 ns -> N = 23; 16-period sum 360 vs stored 352
+    # differs by exactly 8 (half an element), so the hysteresis must hold n_cal
+    wob = [0.698e-9, 0.672e-9]
+    for k in range(64):
+        bench.set_t_elem(wob[k % 2])
+        await bench.run(1)
+    n_cal_after_wobble = bench.ref.n_cal_q4
+    m = {"duty_codes_fast": fast_codes, "duty_codes_slow": slow_codes,
+         "n_cal_q4_after_step": n_cal_after_step, "n_cal_q4_after_wobble": n_cal_after_wobble}
+    save("test_dpwm_calibration", m, bench)
+    assert_clean(bench)
+    assert len(fast_codes) == 1 and len(slow_codes) == 1
+    assert n_cal_after_step == 16 * 22 and n_cal_after_wobble == n_cal_after_step

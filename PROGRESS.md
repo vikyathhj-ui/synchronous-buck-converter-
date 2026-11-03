@@ -29,4 +29,32 @@
   the window ADC saturates (line step). Ask the user whether to work on either.
 - `main` created at 5a9c47a and set as default (user approved). PR #1 = Phases 1-2. After the user merges, fast-forward rework/buck to origin/main if needed.
 
-## Phase 3 — Transistor-level blocks (NEXT)
+## Phase 3 — Transistor-level blocks (IN PROGRESS; WIP commit 2026-11-03, results below are on disk)
+Done (results in results/phase3/*.json, DECISIONS D20-D30):
+- Infrastructure: spice/models/sky130_mini.lib, scripts/spicelib.py (1 thread per ngspice, `save`
+  lines, SPICE_REUSE=1 log reuse, SPICE_WORKERS override, old log deleted before a re-run - D29),
+  check_cell_pins.py, gen_xschem.py + lvs_xschem.sh (17/17 matched before the cmp_adc change).
+- Unit FETs, sizing (HS 19.2 mm, LS 8.8 mm), power stage + drivers, level shifters, delay cells,
+  dead time (min 3.97 ns, shoot-through free), sw_cmp (45/45 functional, MC sigma 3.80/3.96 mV),
+  ADC string + VOUT/2 divider (adcref.json, re-run 2026-11-03), DPWM calibration (dpwm_cal.json:
+  PVT DNL -0.875..+0.665 LSB; MC DNL sigma 0.084 LSB).
+- RTL: delay-line calibration + ADC sampled 2 clocks after the edge; cocotb 12/12, lint 0, formal PASS.
+- 2026-11-03 finding (D30): the full ADC front end failed - comparator kickback through the unequal
+  tap / divider networks, and the benches clocked faster than the RTL. User chose a static preamp:
+  new cmp_adc = adc_pre + cmp_hv (+ adc_pbias) in spice/comparator.spice; char_adc.py and
+  char_comparator.py now use the RTL clocking (1 MHz, 15.6 ns pulse) and a 5 ns max step.
+  comparator.json is STILL the old cmp_hv data until char_comparator.py is re-run.
+- char_adc.py: ramp split into 5 segments (D29); MC DNL computed from cmp_adc MC offsets + ladder
+  MC ("mcc", user decision D29).
+
+Remaining (cd scripts; export SPICE_REUSE=1 SPICE_WORKERS=5):
+  python3 char_adc.py pvt             # was running at the WIP commit (35 segments, cmp_adc)
+  python3 char_comparator.py all      # cmp_adc: 45 PVT + 300 MC (old logs are cmp_hv, will re-run)
+  python3 char_adc.py mcc             # needs the new comparator.json
+  python3 loop_impact.py; python3 collect_phase3.py; python3 update_docs.py
+Then: add adc_pre / cmp_adc / adc_pbias to gen_xschem.py + LVS, update the window-ADC schematic,
+check every number in docs/BLOCKS.md (still from the old cmp_hv results), update INTERVIEW/LEARNING,
+commit Phase 3 (no PR at Phase 3 per the brief), then Phase 4.
+Watch memory: run one char script at a time; `free -m` (RAM + 2 GB swap).
+
+## Phase 4 — Mixed-signal closed loop (NOT STARTED)

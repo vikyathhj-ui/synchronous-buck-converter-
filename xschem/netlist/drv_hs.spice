@@ -1,0 +1,14 @@
+** sch_path: /foss/projects/synchronous-buck-converter-/xschem/drv_hs.sch
+.subckt drv_hs in out vdd vss
+*.PININFO in:B out:B vdd:B vss:B
+XP1 h1 in vdd vdd sky130_fd_pr__pfet_g5v0d10v5 L=0.5 W=3 nf=1
+XN1 h1 in vss vss sky130_fd_pr__nfet_g5v0d10v5 L=0.5 W=1 nf=1
+XP2 h2 h1 vdd vdd sky130_fd_pr__pfet_g5v0d10v5 L=0.5 W=6 nf=1 m=2
+XN2 h2 h1 vss vss sky130_fd_pr__nfet_g5v0d10v5 L=0.5 W=4 nf=1
+XP3 h3 h2 vdd vdd sky130_fd_pr__pfet_g5v0d10v5 L=0.5 W=8 nf=1 m=6
+XN3 h3 h2 vss vss sky130_fd_pr__nfet_g5v0d10v5 L=0.5 W=8 nf=1 m=2
+XP4 h4 h3 vdd vdd sky130_fd_pr__pfet_g5v0d10v5 L=0.5 W=8 nf=1 m=24
+XN4 h4 h3 vss vss sky130_fd_pr__nfet_g5v0d10v5 L=0.5 W=8 nf=1 m=8
+XP5 out h4 vdd vdd sky130_fd_pr__pfet_g5v0d10v5 L=0.5 W=8 nf=1 m=96
+XN5 out h4 vss vss sky130_fd_pr__nfet_g5v0d10v5 L=0.5 W=8 nf=1 m=32
+.ends

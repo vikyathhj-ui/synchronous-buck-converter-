@@ -1,0 +1,103 @@
+
+Circuit 1 cell sky130_fd_sc_hd__dlygate4sd3_1 and Circuit 2 cell sky130_fd_sc_hd__dlygate4sd3_1 are black boxes.
+Warning: Equate pins:  cell sky130_fd_sc_hd__dlygate4sd3_1 is a placeholder, treated as a black box.
+Warning: Equate pins:  cell sky130_fd_sc_hd__dlygate4sd3_1 is a placeholder, treated as a black box.
+
+Subcircuit pins:
+Circuit 1: sky130_fd_sc_hd__dlygate4sd3_1  |Circuit 2: sky130_fd_sc_hd__dlygate4sd3_1  
+-------------------------------------------|-------------------------------------------
+1                                          |1                                          
+2                                          |2                                          
+3                                          |3                                          
+4                                          |4                                          
+5                                          |5                                          
+6                                          |6                                          
+---------------------------------------------------------------------------------------
+Cell pin lists are equivalent.
+Device classes sky130_fd_sc_hd__dlygate4sd3_1 and sky130_fd_sc_hd__dlygate4sd3_1 are equivalent.
+
+Subcircuit summary:
+Circuit 1: dt_tap                          |Circuit 2: dt_tap                          
+-------------------------------------------|-------------------------------------------
+sky130_fd_sc_hd__dlygate4sd3_1 (5)         |sky130_fd_sc_hd__dlygate4sd3_1 (5)         
+Number of devices: 5                       |Number of devices: 5                       
+Number of nets: 8                          |Number of nets: 8                          
+---------------------------------------------------------------------------------------
+Netlists match uniquely.
+
+Subcircuit pins:
+Circuit 1: dt_tap                          |Circuit 2: dt_tap                          
+-------------------------------------------|-------------------------------------------
+vss                                        |vss                                        
+vdd                                        |vdd                                        
+in                                         |in                                         
+out                                        |out                                        
+---------------------------------------------------------------------------------------
+Cell pin lists are equivalent.
+Device classes dt_tap and dt_tap are equivalent.
+
+Circuit 1 cell sky130_fd_sc_hd__mux2_1 and Circuit 2 cell sky130_fd_sc_hd__mux2_1 are black boxes.
+Warning: Equate pins:  cell sky130_fd_sc_hd__mux2_1 is a placeholder, treated as a black box.
+Warning: Equate pins:  cell sky130_fd_sc_hd__mux2_1 is a placeholder, treated as a black box.
+
+Subcircuit pins:
+Circuit 1: sky130_fd_sc_hd__mux2_1         |Circuit 2: sky130_fd_sc_hd__mux2_1         
+-------------------------------------------|-------------------------------------------
+1                                          |1                                          
+2                                          |2                                          
+3                                          |3                                          
+4                                          |4                                          
+5                                          |5                                          
+6                                          |6                                          
+7                                          |7                                          
+8                                          |8                                          
+---------------------------------------------------------------------------------------
+Cell pin lists are equivalent.
+Device classes sky130_fd_sc_hd__mux2_1 and sky130_fd_sc_hd__mux2_1 are equivalent.
+
+Circuit 1 cell sky130_fd_sc_hd__nor2_1 and Circuit 2 cell sky130_fd_sc_hd__nor2_1 are black boxes.
+Warning: Equate pins:  cell sky130_fd_sc_hd__nor2_1 is a placeholder, treated as a black box.
+Warning: Equate pins:  cell sky130_fd_sc_hd__nor2_1 is a placeholder, treated as a black box.
+
+Subcircuit pins:
+Circuit 1: sky130_fd_sc_hd__nor2_1         |Circuit 2: sky130_fd_sc_hd__nor2_1         
+-------------------------------------------|-------------------------------------------
+1                                          |1                                          
+2                                          |2                                          
+3                                          |3                                          
+4                                          |4                                          
+5                                          |5                                          
+6                                          |6                                          
+7                                          |7                                          
+---------------------------------------------------------------------------------------
+Cell pin lists are equivalent.
+Device classes sky130_fd_sc_hd__nor2_1 and sky130_fd_sc_hd__nor2_1 are equivalent.
+
+Subcircuit summary:
+Circuit 1: dpwm_fine                       |Circuit 2: dpwm_fine                       
+-------------------------------------------|-------------------------------------------
+dt_tap (7)                                 |dt_tap (7)                                 
+sky130_fd_sc_hd__mux2_1 (7)                |sky130_fd_sc_hd__mux2_1 (7)                
+sky130_fd_sc_hd__nor2_1 (2)                |sky130_fd_sc_hd__nor2_1 (2)                
+Number of devices: 16                      |Number of devices: 16                      
+Number of nets: 23                         |Number of nets: 23                         
+---------------------------------------------------------------------------------------
+Netlists match uniquely.
+
+Subcircuit pins:
+Circuit 1: dpwm_fine                       |Circuit 2: dpwm_fine                       
+-------------------------------------------|-------------------------------------------
+s2                                         |s2                                         
+pwm_set                                    |pwm_set                                    
+s0                                         |s0                                         
+vdd                                        |vdd                                        
+vss                                        |vss                                        
+pwm_rst                                    |pwm_rst                                    
+s1                                         |s1                                         
+hs_pwm                                     |hs_pwm                                     
+---------------------------------------------------------------------------------------
+Cell pin lists are equivalent.
+Device classes dpwm_fine and dpwm_fine are equivalent.
+
+Final result: Circuits match uniquely.
+.

@@ -8,7 +8,8 @@
              +------+------+            L 15 uH, DCR 0.1 ohm
   pwm_set -->| SR latch +  |--HS gate--+
   pwm_rst -->| delay line  |           |         VSW          VOUT
-  fine_sel ->| (fine taps) |       [pfet_g5v0d10v5]--+---ooo---+-------+---- load
+  tap_sel -->| 64 taps     |       [pfet_g5v0d10v5]--+---ooo---+-------+---- load
+  tdc_launch>| replica 72  |-> tdc_therm[71:0] (calibration)
              +-------------+           |             |         |       |
   dt_*_therm->  dead-time + level shifters + tapered drivers   C 10 uF   |
   ls_en ----->                         |             |      ESR 10 mohm  |
@@ -38,14 +39,16 @@ line, DAC) are Phase 3. This document fixes the interface between them and the c
 |---|---|
 | 63 (prev.) | `ilim_sample` high: the valley comparator compares LS VDS against the `ilim_code` threshold |
 | edge 0 | the mode and duty decided last period take effect; `pwm_set` is high in cycle 0 unless stopped, duty = 0 or `ilim_cmp` tripped (cycle-by-cycle valley limit); `adc_sample` high: the 15 comparators sample VOUT; `ls_en` = running |
-| 0 -> 1 | `adc_therm` registered; `therm2bin` gives e = -8..+7 |
-| 1 -> 2 | PID products kp*e, ki*e, kd*(e - e[-1]) registered |
-| 2 -> 3 | integrator (held on a trip, clamped to [0, DMAX] << 5), PID sum, rounding, clamp -> next duty; VREF ramp (one code at most); fault score (+3 per trip, -1 otherwise); CCM/DCM counters; mode FSM -> next mode. `vref_code` changes here, so the DAC has about 60 clocks to settle |
-| coarse | `pwm_rst` high with `fine_sel`; the HS turns off fine_sel x 1.953 ns after this edge |
+| end of 1 | `adc_therm` registered (two clocks after the sampling edge, for the comparator's cold-corner resolve time); `therm2bin` gives e = -8..+7 |
+| 2 | PID products kp*e, ki*e, kd*(e - e[-1]) registered |
+| 3 | integrator (held on a trip, clamped to [0, DMAX] << 5), PID sum, rounding, clamp -> next duty; VREF ramp (one code at most); fault score (+3 per trip, -1 otherwise); CCM/DCM counters; mode FSM -> next mode. `vref_code` changes here, so the DAC has about 60 clocks to settle |
+| coarse | `pwm_rst` high; the HS turns off after the main delay-line tap `tap_sel` = round(fine x N / 8) |
+| 40 | `tdc_launch` rises into the 72-element replica line; its taps are sampled at the end of cycle 40 and counted (N) in cycle 41; every 16 periods N updates if it moved by more than half an element (D25) |
 | > coarse | LS phase. In DCM a zero-cross (`zc_cmp`) seen in cycle c drops `ls_en` from cycle c + 1 to the end of the period |
 
-ton = coarse x 15.625 ns + fine x 1.953 ns, where duty = {coarse[5:0], fine[2:0]} and DMAX = 496 (default)
-leaves at least 31 ns of off-time for dead time.
+ton = coarse x 15.625 ns + tap_sel x t_element (+ a constant mux/latch offset), with duty =
+{coarse[5:0], fine[2:0]} and tap_sel = round(fine x N / 8), so the fine step is Tclk / 8 to within one
+element at any PVT. DMAX = 496 (default) leaves at least 31 ns of off-time for dead time.
 
 **Delay from sample to applied duty:** the duty computed from the sample at edge 0 of period k is
 applied in period k + 1, a 1 us compute delay. This is the z^-1 in `docs/CONTROL.md`.
@@ -83,6 +86,7 @@ Entering SS from IDLE or FAULT resets VREF to 0, the integrator, e[-1] and all c
 | 0x24 | FAULT_N | [7:0] | 64 | fault score threshold, 0 = never |
 | 0x28 | STATUS | [2:0] mode, [7:4] e, [15:8] vref_code, [24:16] duty, [25] hs_en | - | read only |
 | 0x2C | ID | 0xB0C40001 | - | read only |
+| 0x30 | CAL | [10:0] N x 16 (calibrated delay elements per clock) | 640 | read only |
 
 ## 5. Golden model
 

@@ -1,0 +1,53 @@
+* Dead-time generator: adaptive break-before-make plus programmable delay (1.8 V logic, hd cells).
+*
+*   HS_ON = PWM  AND delay_lh( LS confirmed off )
+*   LS_ON = !PWM AND LS_EN AND delay_hl( HS confirmed off )
+*
+* "Confirmed off" comes from replica-threshold gate sensors on the real power gates (gate_sense in
+* powerstage.spice, VIN domain) through HVL hv->lv level shifters, so one switch can only start
+* turning on after the other one has stopped conducting, at any corner. The programmable delay adds
+* (code + 1) taps of margin; its thermometer select is the RTL dt_*_therm output (never zero taps).
+* Requires: powerstage.spice, sky130_fd_sc_hd.spice, sky130_fd_sc_hvl.spice.
+
+* ---------------------------------------------------------------- one tap: 5 x dlygate4sd3_1
+.subckt dt_tap in out vdd vss
+X1 in vss vss vdd vdd a1 sky130_fd_sc_hd__dlygate4sd3_1
+X2 a1 vss vss vdd vdd a2 sky130_fd_sc_hd__dlygate4sd3_1
+X3 a2 vss vss vdd vdd a3 sky130_fd_sc_hd__dlygate4sd3_1
+X4 a3 vss vss vdd vdd a4 sky130_fd_sc_hd__dlygate4sd3_1
+X5 a4 vss vss vdd vdd out sky130_fd_sc_hd__dlygate4sd3_1
+.ends
+
+* ---------------------------------------------------------------- one stage: tap or bypass
+.subckt dt_stage in out sel vdd vss
+XT in d vdd vss dt_tap
+XM in d sel vss vss vdd vdd out sky130_fd_sc_hd__mux2_1
+.ends
+
+* ---------------------------------------------------------------- 8-stage thermometer delay
+* delay = (number of ones in t) x tap + 8 x mux
+.subckt dt_prog in out t0 t1 t2 t3 t4 t5 t6 t7 vdd vss
+X0 in x1 t0 vdd vss dt_stage
+X1 x1 x2 t1 vdd vss dt_stage
+X2 x2 x3 t2 vdd vss dt_stage
+X3 x3 x4 t3 vdd vss dt_stage
+X4 x4 x5 t4 vdd vss dt_stage
+X5 x5 x6 t5 vdd vss dt_stage
+X6 x6 x7 t6 vdd vss dt_stage
+X7 x7 out t7 vdd vss dt_stage
+.ends
+
+* ---------------------------------------------------------------- dead-time generator
+* hs_on_s / ls_on_s: VIN-level "power switch conducting" from gate_sense
+.subckt deadtime_gen pwm ls_en hs_on_s ls_on_s hs_on ls_on
++ hl0 hl1 hl2 hl3 hl4 hl5 hl6 hl7 lh0 lh1 lh2 lh3 lh4 lh5 lh6 lh7 vdd vin vss
+XSH hs_on_s vdd vss vss vin vin hs_on_lv sky130_fd_sc_hvl__lsbufhv2lv_1
+XSL ls_on_s vdd vss vss vin vin ls_on_lv sky130_fd_sc_hvl__lsbufhv2lv_1
+XIH hs_on_lv vss vss vdd vdd hs_off_ok sky130_fd_sc_hd__inv_1
+XIL ls_on_lv vss vss vdd vdd ls_off_ok sky130_fd_sc_hd__inv_1
+XDH hs_off_ok hl_ok hl0 hl1 hl2 hl3 hl4 hl5 hl6 hl7 vdd vss dt_prog
+XDL ls_off_ok lh_ok lh0 lh1 lh2 lh3 lh4 lh5 lh6 lh7 vdd vss dt_prog
+XIP pwm vss vss vdd vdd pwm_n sky130_fd_sc_hd__inv_1
+XAH pwm lh_ok vss vss vdd vdd hs_on sky130_fd_sc_hd__and2_1
+XAL pwm_n ls_en hl_ok vss vss vdd vdd ls_on sky130_fd_sc_hd__and3_1
+.ends

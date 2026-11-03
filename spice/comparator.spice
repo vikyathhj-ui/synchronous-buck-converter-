@@ -1,0 +1,120 @@
+* Clocked comparators, 1.8 V domain (sky130_fd_pr 1.8 V devices).
+* Parallel devices use m=N mult=N: m multiplies the device, mult normalises the PDK mismatch sigma
+* (sigma ~ 1/sqrt(l*w*mult)); with m alone all copies share one random draw.
+*
+* cmp_sa: 1.8 V PMOS-input StrongARM (NOT used in the design: it cannot reach CM 0.83 V at 1.62-1.71 V
+*   supply and -40 C; kept as the record of DECISIONS D26). The design uses cmp_hv below.
+*   clk low : reset (x1, x2, outn, outp pulled low); the SR latch holds the last decision.
+*   The controller samples q two clocks after the sampling edge (31 ns to resolve).
+*   clk high: evaluate. q = 1 when inp < inn (inp is the more negative input).
+*   PMOS input so the common mode can go from about 0 V (switch-node sensing) to about 0.85 V
+*   (window ADC after the VOUT/3 divider).
+.subckt cmp_sa inp inn clk q vdd vss
+XINV clk vss vss vdd vdd clkb sky130_fd_sc_hd__clkinv_1
+* tail: on when clk high
+* tail: standard Vt (an LVT tail leaked enough at 125 C to defeat the reset)
+XT tail clkb vdd vdd sky130_fd_pr__pfet_01v8 W=8 L=0.5 m=8 mult=8
+* input pair: standard Vt (LVT has 2.4x the Vt mismatch coefficient: sigma ~9 mV), large area
+XP1 x1 inp tail vdd sky130_fd_pr__pfet_01v8 W=8 L=1 m=8 mult=8
+XP2 x2 inn tail vdd sky130_fd_pr__pfet_01v8 W=8 L=1 m=8 mult=8
+* cross-coupled latch (L = 0.5 um: minimum-length latch devices dominated the offset)
+XP3 outn outp x1 vdd sky130_fd_pr__pfet_01v8 W=4 L=0.5 m=1 mult=1
+XP4 outp outn x2 vdd sky130_fd_pr__pfet_01v8 W=4 L=0.5 m=1 mult=1
+XN3 outn outp vss vss sky130_fd_pr__nfet_01v8 W=2 L=0.5 m=1 mult=1
+XN4 outp outn vss vss sky130_fd_pr__nfet_01v8 W=2 L=0.5 m=1 mult=1
+* reset switches (on when clk low)
+XR1 x1 clkb vss vss sky130_fd_pr__nfet_01v8 W=2 L=0.15
+XR2 x2 clkb vss vss sky130_fd_pr__nfet_01v8 W=2 L=0.15
+XR3 outn clkb vss vss sky130_fd_pr__nfet_01v8 W=2 L=0.15
+XR4 outp clkb vss vss sky130_fd_pr__nfet_01v8 W=2 L=0.15
+* isolation inverters (identical, state-independent loads on outp/outn: a latch hung directly on
+* them gave a decision-dependent systematic offset of up to 4 mV at sf/125 C/1.98 V)
+XIP outp vss vss vdd vdd outp_b sky130_fd_sc_hd__inv_1
+XIN outn vss vss vdd vdd outn_b sky130_fd_sc_hd__inv_1
+* NAND SR latch: both inputs high during reset (hold); q = 1 after outn wins (inp < inn)
+XL1 outn_b qb vss vss vdd vdd q_i sky130_fd_sc_hd__nand2_1
+XL2 outp_b q_i vss vss vdd vdd qb sky130_fd_sc_hd__nand2_1
+XB q_i vss vss vdd vdd q sky130_fd_sc_hd__buf_1
+.ends
+
+* Switch-node sense for the valley-current and zero-cross comparators: a 5 V NMOS pass device
+* gated by the LS gate (VIN level) connects VSW only while the LS conducts; otherwise a weak
+* pull-down holds the comparator input at 0 V. The 1.8 V comparator never sees the 3.6 V phase.
+.subckt sw_sense sw ls_g vs vss
+* 10 fingers: the 0.9 V shift network draws ~45 uA through the pass device; one finger (~200 ohm)
+* would add ~10 mV of PVT-dependent offset, ten fingers ~1 mV
+XPASS vs ls_g sw vss sky130_fd_pr__nfet_g5v0d10v5 W=10 L=0.5 m=10 mult=10
+RPD vs vss 1Meg
+.ends
+
+* cmp_hv: PMOS-input StrongARM on the VIN rail (3.0-3.6 V) with 5 V devices (headroom for the window-ADC
+*   common mode 0.5-1.25 V = VOUT/2 at every corner), used for the 15 window-ADC comparators.
+*   clk (1.8 V) is level-shifted up; the decision comes back through hv->lv shifters into a 1.8 V NAND
+*   SR latch. q = 1 when inp < inn. The controller samples q two clocks after the sampling edge.
+.subckt cmp_hv inp inn clk q vin vdd vss
+XCS clk vdd vss vss vin vin clk_h sky130_fd_sc_hvl__lsbuflv2hv_1
+XCI clk_h vss vss vin vin clkb sky130_fd_sc_hvl__inv_1
+XT tail clkb vin vin sky130_fd_pr__pfet_g5v0d10v5 W=10 L=0.5 m=8 mult=8
+XP1 x1 inp tail vin sky130_fd_pr__pfet_g5v0d10v5 W=10 L=2 m=8 mult=8
+XP2 x2 inn tail vin sky130_fd_pr__pfet_g5v0d10v5 W=10 L=2 m=8 mult=8
+XP3 outn outp x1 vin sky130_fd_pr__pfet_g5v0d10v5 W=10 L=2 m=2 mult=2
+XP4 outp outn x2 vin sky130_fd_pr__pfet_g5v0d10v5 W=10 L=2 m=2 mult=2
+XN3 outn outp vss vss sky130_fd_pr__nfet_g5v0d10v5 W=10 L=2
+XN4 outp outn vss vss sky130_fd_pr__nfet_g5v0d10v5 W=10 L=2
+XR1 x1 clkb vss vss sky130_fd_pr__nfet_g5v0d10v5 W=8 L=4
+XR2 x2 clkb vss vss sky130_fd_pr__nfet_g5v0d10v5 W=8 L=4
+XR3 outn clkb vss vss sky130_fd_pr__nfet_g5v0d10v5 W=8 L=4
+XR4 outp clkb vss vss sky130_fd_pr__nfet_g5v0d10v5 W=8 L=4
+XIP outp vss vss vin vin outp_b sky130_fd_sc_hvl__inv_1
+XIN outn vss vss vin vin outn_b sky130_fd_sc_hvl__inv_1
+XDP outp_b vdd vss vss vin vin outp_l sky130_fd_sc_hvl__lsbufhv2lv_1
+XDN outn_b vdd vss vss vin vin outn_l sky130_fd_sc_hvl__lsbufhv2lv_1
+XL1 outn_l qb vss vss vdd vdd q_i sky130_fd_sc_hd__nand2_1
+XL2 outp_l q_i vss vss vdd vdd qb sky130_fd_sc_hd__nand2_1
+XB q_i vss vss vdd vdd q sky130_fd_sc_hd__buf_1
+.ends
+
+* sw_cmp: switch-node comparator for the valley current limit and zero-cross detection.
+*   VSW is sensed through sw_sense (5 V pass device gated by the LS gate) and shifted up with a
+*   matched resistor divider to a 0.9 V reference: inp = (vs + 0.9) / 2, so the comparator works near
+*   0.45 V instead of at -60..0 mV (where a PMOS-input StrongARM does not resolve).
+*   The threshold vth (on the VSW scale: 0 V for zero-cross, -ILIM x Ron_LS,nominal for the valley
+*   limit, from an ideal DAC, DECISIONS D27) goes through an identical pass device and divider, so
+*   the comparator's kickback disturbs both inputs equally (with only one side resistive the
+*   kickback asymmetry moved the threshold by more than 25 mV).
+*   q = 1 when VSW < vth: valley current above the limit. The zero-cross instance uses the
+*   inverted output (zc_cmp = 1 when VSW > 0, i.e. reverse inductor current).
+.subckt sw_cmp sw ls_g vsh vth clk q vin vdd vss
+XS sw ls_g vs vss sw_sense
+XRA vs inp vss sky130_fd_pr__res_xhigh_po_5p73 l=28 mult=1
+XRB vsh inp vss sky130_fd_pr__res_xhigh_po_5p73 l=28 mult=1
+XT vth ls_g vt vss sw_sense
+XRC vt inn vss sky130_fd_pr__res_xhigh_po_5p73 l=28 mult=1
+XRD vsh inn vss sky130_fd_pr__res_xhigh_po_5p73 l=28 mult=1
+XC inp inn clk q vin vdd vss cmp_hv
+.ends
+
+* cmp_adc: window-ADC comparator = static preamp + cmp_hv (DECISIONS D30). On every evaluation the
+*   cmp_hv input pair throws ~0.2 V of charge back onto its inputs; through the unequal ADC source
+*   networks (one 2 pF tap vs the shared 10 pF VOUT/2 node) that became a differential error larger
+*   than the signal. The preamp drives both cmp_hv inputs from identical resistor loads, so the kick
+*   is common mode there, and its small Cgd keeps the kick off the tap and divider.
+*   pb: gate of the shared PMOS bias diode (adc_pbias, 10 uA reference). q = 1 when inp < inn.
+.subckt adc_pre inp inn on op pb vin vss
+XT tail pb vin vin sky130_fd_pr__pfet_g5v0d10v5 W=10 L=4 m=4 mult=4
+XP1 on inp tail vin sky130_fd_pr__pfet_g5v0d10v5 W=10 L=4 m=2 mult=2
+XP2 op inn tail vin sky130_fd_pr__pfet_g5v0d10v5 W=10 L=4 m=2 mult=2
+XR1 on vss vss sky130_fd_pr__res_xhigh_po_1p41 l=127
+XR2 op vss vss sky130_fd_pr__res_xhigh_po_1p41 l=127
+.ends
+
+* inp lower -> P1 conducts more -> on higher; cmp_hv sees inp = op < inn = on -> q = 1
+.subckt cmp_adc inp inn clk q pb vin vdd vss
+XPRE inp inn on op pb vin vss adc_pre
+XC op on clk q vin vdd vss cmp_hv
+.ends
+
+* one per ADC: 10 uA (ideal reference, from the testbench) into ibn sets pb for the 15 tails (10 uA each)
+.subckt adc_pbias pb vin
+XPB pb pb vin vin sky130_fd_pr__pfet_g5v0d10v5 W=10 L=4 m=4 mult=4
+.ends

@@ -1,0 +1,19 @@
+** sch_path: /foss/projects/synchronous-buck-converter-/xschem/dt_stage.sch
+.subckt dt_stage in out sel vdd vss
+*.PININFO in:B out:B sel:B vdd:B vss:B
+XT in d vdd vss dt_tap
+XM in d sel vss vss vdd vdd out sky130_fd_sc_hd__mux2_1
+.ends
+
+* expanding   symbol:  dt_tap.sym # of pins=4
+** sym_path: /foss/projects/synchronous-buck-converter-/xschem/dt_tap.sym
+** sch_path: /foss/projects/synchronous-buck-converter-/xschem/dt_tap.sch
+.subckt dt_tap in out vdd vss
+*.PININFO in:B out:B vdd:B vss:B
+X1 in vss vss vdd vdd a1 sky130_fd_sc_hd__dlygate4sd3_1
+X2 a1 vss vss vdd vdd a2 sky130_fd_sc_hd__dlygate4sd3_1
+X3 a2 vss vss vdd vdd a3 sky130_fd_sc_hd__dlygate4sd3_1
+X4 a3 vss vss vdd vdd a4 sky130_fd_sc_hd__dlygate4sd3_1
+X5 a4 vss vss vdd vdd out sky130_fd_sc_hd__dlygate4sd3_1
+.ends
+

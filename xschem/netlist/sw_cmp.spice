@@ -1,0 +1,49 @@
+** sch_path: /foss/projects/synchronous-buck-converter-/xschem/sw_cmp.sch
+.subckt sw_cmp sw ls_g vsh vth clk q vin vdd vss
+*.PININFO sw:B ls_g:B vsh:B vth:B clk:B q:B vin:B vdd:B vss:B
+XS sw ls_g vs vss sw_sense
+XRA inp vs vss sky130_fd_pr__res_xhigh_po_5p73 L=28 mult=1
+XRB inp vsh vss sky130_fd_pr__res_xhigh_po_5p73 L=28 mult=1
+XT vth ls_g vt vss sw_sense
+XRC inn vt vss sky130_fd_pr__res_xhigh_po_5p73 L=28 mult=1
+XRD inn vsh vss sky130_fd_pr__res_xhigh_po_5p73 L=28 mult=1
+XC inp inn clk q vin vdd vss cmp_hv
+.ends
+
+* expanding   symbol:  sw_sense.sym # of pins=4
+** sym_path: /foss/projects/synchronous-buck-converter-/xschem/sw_sense.sym
+** sch_path: /foss/projects/synchronous-buck-converter-/xschem/sw_sense.sch
+.subckt sw_sense sw ls_g vs vss
+*.PININFO sw:B ls_g:B vs:B vss:B
+XPASS vs ls_g sw vss sky130_fd_pr__nfet_g5v0d10v5 L=0.5 W=10 nf=1 m=10
+RPD vs vss 1Meg
+.ends
+
+
+* expanding   symbol:  cmp_hv.sym # of pins=7
+** sym_path: /foss/projects/synchronous-buck-converter-/xschem/cmp_hv.sym
+** sch_path: /foss/projects/synchronous-buck-converter-/xschem/cmp_hv.sch
+.subckt cmp_hv inp inn clk q vin vdd vss
+*.PININFO inp:B inn:B clk:B q:B vin:B vdd:B vss:B
+XCS clk vdd vss vss vin vin clk_h sky130_fd_sc_hvl__lsbuflv2hv_1
+XCI clk_h vss vss vin vin clkb sky130_fd_sc_hvl__inv_1
+XT tail clkb vin vin sky130_fd_pr__pfet_g5v0d10v5 L=0.5 W=10 nf=1 m=8
+XP1 x1 inp tail vin sky130_fd_pr__pfet_g5v0d10v5 L=2 W=10 nf=1 m=8
+XP2 x2 inn tail vin sky130_fd_pr__pfet_g5v0d10v5 L=2 W=10 nf=1 m=8
+XP3 outn outp x1 vin sky130_fd_pr__pfet_g5v0d10v5 L=2 W=10 nf=1 m=2
+XP4 outp outn x2 vin sky130_fd_pr__pfet_g5v0d10v5 L=2 W=10 nf=1 m=2
+XN3 outn outp vss vss sky130_fd_pr__nfet_g5v0d10v5 L=2 W=10 nf=1
+XN4 outp outn vss vss sky130_fd_pr__nfet_g5v0d10v5 L=2 W=10 nf=1
+XR1 x1 clkb vss vss sky130_fd_pr__nfet_g5v0d10v5 L=4 W=8 nf=1
+XR2 x2 clkb vss vss sky130_fd_pr__nfet_g5v0d10v5 L=4 W=8 nf=1
+XR3 outn clkb vss vss sky130_fd_pr__nfet_g5v0d10v5 L=4 W=8 nf=1
+XR4 outp clkb vss vss sky130_fd_pr__nfet_g5v0d10v5 L=4 W=8 nf=1
+XIP outp vss vss vin vin outp_b sky130_fd_sc_hvl__inv_1
+XIN outn vss vss vin vin outn_b sky130_fd_sc_hvl__inv_1
+XDP outp_b vdd vss vss vin vin outp_l sky130_fd_sc_hvl__lsbufhv2lv_1
+XDN outn_b vdd vss vss vin vin outn_l sky130_fd_sc_hvl__lsbufhv2lv_1
+XL1 outn_l qb vss vss vdd vdd q_i sky130_fd_sc_hd__nand2_1
+XL2 outp_l q_i vss vss vdd vdd qb sky130_fd_sc_hd__nand2_1
+XB q_i vss vss vdd vdd q sky130_fd_sc_hd__buf_1
+.ends
+

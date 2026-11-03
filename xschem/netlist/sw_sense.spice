@@ -1,0 +1,6 @@
+** sch_path: /foss/projects/synchronous-buck-converter-/xschem/sw_sense.sch
+.subckt sw_sense sw ls_g vs vss
+*.PININFO sw:B ls_g:B vs:B vss:B
+XPASS vs ls_g sw vss sky130_fd_pr__nfet_g5v0d10v5 L=0.5 W=10 nf=1 m=10
+RPD vs vss 1Meg
+.ends

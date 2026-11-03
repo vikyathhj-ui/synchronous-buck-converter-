@@ -1,8 +1,8 @@
 {
  "periods_to_fault": 99,
  "trips_before_fault": 38,
- "valley_max_before_fault": 0.32338422398872607,
- "peak_max_before_fault": 0.3411904716410704,
+ "valley_max_before_fault": 0.32339506450822514,
+ "peak_max_before_fault": 0.34119603687142624,
  "restarted_to_ccm": true,
  "modes_after_clear": [
   1,

@@ -1,5 +1,5 @@
 {
  "pass": true,
- "checks": 31,
+ "checks": 32,
  "source": "tb/test_buck_ctrl.py::test_registers (cocotb, Icarus Verilog)"
 }

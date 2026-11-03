@@ -1,0 +1,21 @@
+** sch_path: /foss/projects/synchronous-buck-converter-/xschem/cmp_sa.sch
+.subckt cmp_sa inp inn clk q vdd vss
+*.PININFO inp:B inn:B clk:B q:B vdd:B vss:B
+XINV clk vss vss vdd vdd clkb sky130_fd_sc_hd__clkinv_1
+XT tail clkb vdd vdd sky130_fd_pr__pfet_01v8 L=0.5 W=8 nf=1 m=8
+XP1 x1 inp tail vdd sky130_fd_pr__pfet_01v8 L=1 W=8 nf=1 m=8
+XP2 x2 inn tail vdd sky130_fd_pr__pfet_01v8 L=1 W=8 nf=1 m=8
+XP3 outn outp x1 vdd sky130_fd_pr__pfet_01v8 L=0.5 W=4 nf=1
+XP4 outp outn x2 vdd sky130_fd_pr__pfet_01v8 L=0.5 W=4 nf=1
+XN3 outn outp vss vss sky130_fd_pr__nfet_01v8 L=0.5 W=2 nf=1
+XN4 outp outn vss vss sky130_fd_pr__nfet_01v8 L=0.5 W=2 nf=1
+XR1 x1 clkb vss vss sky130_fd_pr__nfet_01v8 L=0.15 W=2 nf=1
+XR2 x2 clkb vss vss sky130_fd_pr__nfet_01v8 L=0.15 W=2 nf=1
+XR3 outn clkb vss vss sky130_fd_pr__nfet_01v8 L=0.15 W=2 nf=1
+XR4 outp clkb vss vss sky130_fd_pr__nfet_01v8 L=0.15 W=2 nf=1
+XIP outp vss vss vdd vdd outp_b sky130_fd_sc_hd__inv_1
+XIN outn vss vss vdd vdd outn_b sky130_fd_sc_hd__inv_1
+XL1 outn_b qb vss vss vdd vdd q_i sky130_fd_sc_hd__nand2_1
+XL2 outp_b q_i vss vss vdd vdd qb sky130_fd_sc_hd__nand2_1
+XB q_i vss vss vdd vdd q sky130_fd_sc_hd__buf_1
+.ends

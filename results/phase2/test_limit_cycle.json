@@ -8,7 +8,7 @@
  "adc_codes": [
   0
  ],
- "v_sample_pp": 8.85957973650875e-12,
+ "v_sample_pp": 7.146283564907208e-12,
  "scoreboard_periods": 12000,
  "scoreboard_mismatches": 0,
  "source": "tb/test_buck_ctrl.py::test_limit_cycle (cocotb, Icarus Verilog)"

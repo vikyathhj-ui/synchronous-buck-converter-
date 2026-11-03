@@ -1,0 +1,10 @@
+** sch_path: /foss/projects/synchronous-buck-converter-/xschem/gate_sense.sch
+.subckt gate_sense vin hs_g ls_g hs_on_s ls_on_s vss
+*.PININFO vin:B hs_g:B ls_g:B hs_on_s:B ls_on_s:B vss:B
+XPS hs_on_s hs_g vin vin sky130_fd_pr__pfet_g5v0d10v5 L=0.5 W=10 nf=1
+XPD hs_on_s vin vss vss sky130_fd_pr__nfet_g5v0d10v5 L=8 W=0.42 nf=1
+XNS lsb ls_g vss vss sky130_fd_pr__nfet_g5v0d10v5 L=0.5 W=4 nf=1
+XNU lsb vss vin vin sky130_fd_pr__pfet_g5v0d10v5 L=8 W=0.42 nf=1
+XNI ls_on_s lsb vin vin sky130_fd_pr__pfet_g5v0d10v5 L=0.5 W=2 nf=1
+XNJ ls_on_s lsb vss vss sky130_fd_pr__nfet_g5v0d10v5 L=0.5 W=1 nf=1
+.ends

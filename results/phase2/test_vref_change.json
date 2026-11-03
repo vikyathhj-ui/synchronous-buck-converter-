@@ -1,10 +1,10 @@
 {
- "v_at_1v2_mean": 1.2006611745166265,
- "v_at_1v2_pp": 6.490288084748386e-09,
- "v_at_2v5_mean": 2.496361837858429,
- "v_at_2v5_pp": 9.430924485798187e-09,
+ "v_at_1v2_mean": 1.199403376374958,
+ "v_at_1v2_pp": 8.942438123327179e-09,
+ "v_at_2v5_mean": 2.501393405679188,
+ "v_at_2v5_pp": 1.269799834169305e-07,
  "vref_code_end": 250,
- "duty_at_2v5": 397,
+ "duty_at_2v5": 398,
  "scoreboard_periods": 4500,
  "scoreboard_mismatches": 0,
  "source": "tb/test_buck_ctrl.py::test_vref_change (cocotb, Icarus Verilog)"

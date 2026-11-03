@@ -1,0 +1,81 @@
+** sch_path: /foss/projects/synchronous-buck-converter-/xschem/tdc_line.sch
+.subckt tdc_line launch q1 q2 q3 q4 q5 q6 q7 q8 q9 q10 q11 q12 q13 q14 q15 q16 q17 q18 q19 q20 q21 q22 q23 q24 q25 q26 q27 q28 q29
++ q30 q31 q32 q33 q34 q35 q36 q37 q38 q39 q40 q41 q42 q43 q44 q45 q46 q47 q48 q49 q50 q51 q52 q53 q54 q55 q56 q57 q58 q59 q60 q61 q62
++ q63 q64 q65 q66 q67 q68 q69 q70 q71 q72 vdd vss
+*.PININFO launch:B q1:B q2:B q3:B q4:B q5:B q6:B q7:B q8:B q9:B q10:B q11:B q12:B q13:B q14:B q15:B q16:B q17:B q18:B q19:B q20:B
+*+ q21:B q22:B q23:B q24:B q25:B q26:B q27:B q28:B q29:B q30:B q31:B q32:B q33:B q34:B q35:B q36:B q37:B q38:B q39:B q40:B q41:B q42:B
+*+ q43:B q44:B q45:B q46:B q47:B q48:B q49:B q50:B q51:B q52:B q53:B q54:B q55:B q56:B q57:B q58:B q59:B q60:B q61:B q62:B q63:B q64:B
+*+ q65:B q66:B q67:B q68:B q69:B q70:B q71:B q72:B vdd:B vss:B
+XR0 launch vss vss vdd vdd q1 sky130_fd_sc_hd__dlygate4sd3_1
+XR1 q1 vss vss vdd vdd q2 sky130_fd_sc_hd__dlygate4sd3_1
+XR2 q2 vss vss vdd vdd q3 sky130_fd_sc_hd__dlygate4sd3_1
+XR3 q3 vss vss vdd vdd q4 sky130_fd_sc_hd__dlygate4sd3_1
+XR4 q4 vss vss vdd vdd q5 sky130_fd_sc_hd__dlygate4sd3_1
+XR5 q5 vss vss vdd vdd q6 sky130_fd_sc_hd__dlygate4sd3_1
+XR6 q6 vss vss vdd vdd q7 sky130_fd_sc_hd__dlygate4sd3_1
+XR7 q7 vss vss vdd vdd q8 sky130_fd_sc_hd__dlygate4sd3_1
+XR8 q8 vss vss vdd vdd q9 sky130_fd_sc_hd__dlygate4sd3_1
+XR9 q9 vss vss vdd vdd q10 sky130_fd_sc_hd__dlygate4sd3_1
+XR10 q10 vss vss vdd vdd q11 sky130_fd_sc_hd__dlygate4sd3_1
+XR11 q11 vss vss vdd vdd q12 sky130_fd_sc_hd__dlygate4sd3_1
+XR12 q12 vss vss vdd vdd q13 sky130_fd_sc_hd__dlygate4sd3_1
+XR13 q13 vss vss vdd vdd q14 sky130_fd_sc_hd__dlygate4sd3_1
+XR14 q14 vss vss vdd vdd q15 sky130_fd_sc_hd__dlygate4sd3_1
+XR15 q15 vss vss vdd vdd q16 sky130_fd_sc_hd__dlygate4sd3_1
+XR16 q16 vss vss vdd vdd q17 sky130_fd_sc_hd__dlygate4sd3_1
+XR17 q17 vss vss vdd vdd q18 sky130_fd_sc_hd__dlygate4sd3_1
+XR18 q18 vss vss vdd vdd q19 sky130_fd_sc_hd__dlygate4sd3_1
+XR19 q19 vss vss vdd vdd q20 sky130_fd_sc_hd__dlygate4sd3_1
+XR20 q20 vss vss vdd vdd q21 sky130_fd_sc_hd__dlygate4sd3_1
+XR21 q21 vss vss vdd vdd q22 sky130_fd_sc_hd__dlygate4sd3_1
+XR22 q22 vss vss vdd vdd q23 sky130_fd_sc_hd__dlygate4sd3_1
+XR23 q23 vss vss vdd vdd q24 sky130_fd_sc_hd__dlygate4sd3_1
+XR24 q24 vss vss vdd vdd q25 sky130_fd_sc_hd__dlygate4sd3_1
+XR25 q25 vss vss vdd vdd q26 sky130_fd_sc_hd__dlygate4sd3_1
+XR26 q26 vss vss vdd vdd q27 sky130_fd_sc_hd__dlygate4sd3_1
+XR27 q27 vss vss vdd vdd q28 sky130_fd_sc_hd__dlygate4sd3_1
+XR28 q28 vss vss vdd vdd q29 sky130_fd_sc_hd__dlygate4sd3_1
+XR29 q29 vss vss vdd vdd q30 sky130_fd_sc_hd__dlygate4sd3_1
+XR30 q30 vss vss vdd vdd q31 sky130_fd_sc_hd__dlygate4sd3_1
+XR31 q31 vss vss vdd vdd q32 sky130_fd_sc_hd__dlygate4sd3_1
+XR32 q32 vss vss vdd vdd q33 sky130_fd_sc_hd__dlygate4sd3_1
+XR33 q33 vss vss vdd vdd q34 sky130_fd_sc_hd__dlygate4sd3_1
+XR34 q34 vss vss vdd vdd q35 sky130_fd_sc_hd__dlygate4sd3_1
+XR35 q35 vss vss vdd vdd q36 sky130_fd_sc_hd__dlygate4sd3_1
+XR36 q36 vss vss vdd vdd q37 sky130_fd_sc_hd__dlygate4sd3_1
+XR37 q37 vss vss vdd vdd q38 sky130_fd_sc_hd__dlygate4sd3_1
+XR38 q38 vss vss vdd vdd q39 sky130_fd_sc_hd__dlygate4sd3_1
+XR39 q39 vss vss vdd vdd q40 sky130_fd_sc_hd__dlygate4sd3_1
+XR40 q40 vss vss vdd vdd q41 sky130_fd_sc_hd__dlygate4sd3_1
+XR41 q41 vss vss vdd vdd q42 sky130_fd_sc_hd__dlygate4sd3_1
+XR42 q42 vss vss vdd vdd q43 sky130_fd_sc_hd__dlygate4sd3_1
+XR43 q43 vss vss vdd vdd q44 sky130_fd_sc_hd__dlygate4sd3_1
+XR44 q44 vss vss vdd vdd q45 sky130_fd_sc_hd__dlygate4sd3_1
+XR45 q45 vss vss vdd vdd q46 sky130_fd_sc_hd__dlygate4sd3_1
+XR46 q46 vss vss vdd vdd q47 sky130_fd_sc_hd__dlygate4sd3_1
+XR47 q47 vss vss vdd vdd q48 sky130_fd_sc_hd__dlygate4sd3_1
+XR48 q48 vss vss vdd vdd q49 sky130_fd_sc_hd__dlygate4sd3_1
+XR49 q49 vss vss vdd vdd q50 sky130_fd_sc_hd__dlygate4sd3_1
+XR50 q50 vss vss vdd vdd q51 sky130_fd_sc_hd__dlygate4sd3_1
+XR51 q51 vss vss vdd vdd q52 sky130_fd_sc_hd__dlygate4sd3_1
+XR52 q52 vss vss vdd vdd q53 sky130_fd_sc_hd__dlygate4sd3_1
+XR53 q53 vss vss vdd vdd q54 sky130_fd_sc_hd__dlygate4sd3_1
+XR54 q54 vss vss vdd vdd q55 sky130_fd_sc_hd__dlygate4sd3_1
+XR55 q55 vss vss vdd vdd q56 sky130_fd_sc_hd__dlygate4sd3_1
+XR56 q56 vss vss vdd vdd q57 sky130_fd_sc_hd__dlygate4sd3_1
+XR57 q57 vss vss vdd vdd q58 sky130_fd_sc_hd__dlygate4sd3_1
+XR58 q58 vss vss vdd vdd q59 sky130_fd_sc_hd__dlygate4sd3_1
+XR59 q59 vss vss vdd vdd q60 sky130_fd_sc_hd__dlygate4sd3_1
+XR60 q60 vss vss vdd vdd q61 sky130_fd_sc_hd__dlygate4sd3_1
+XR61 q61 vss vss vdd vdd q62 sky130_fd_sc_hd__dlygate4sd3_1
+XR62 q62 vss vss vdd vdd q63 sky130_fd_sc_hd__dlygate4sd3_1
+XR63 q63 vss vss vdd vdd q64 sky130_fd_sc_hd__dlygate4sd3_1
+XR64 q64 vss vss vdd vdd q65 sky130_fd_sc_hd__dlygate4sd3_1
+XR65 q65 vss vss vdd vdd q66 sky130_fd_sc_hd__dlygate4sd3_1
+XR66 q66 vss vss vdd vdd q67 sky130_fd_sc_hd__dlygate4sd3_1
+XR67 q67 vss vss vdd vdd q68 sky130_fd_sc_hd__dlygate4sd3_1
+XR68 q68 vss vss vdd vdd q69 sky130_fd_sc_hd__dlygate4sd3_1
+XR69 q69 vss vss vdd vdd q70 sky130_fd_sc_hd__dlygate4sd3_1
+XR70 q70 vss vss vdd vdd q71 sky130_fd_sc_hd__dlygate4sd3_1
+XR71 q71 vss vss vdd vdd q72 sky130_fd_sc_hd__dlygate4sd3_1
+.ends

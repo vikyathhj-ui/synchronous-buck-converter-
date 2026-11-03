@@ -1,10 +1,10 @@
 {
- "overshoot_pct": -0.0037868739773590696,
- "il_peak": 0.204559705155441,
+ "overshoot_pct": -0.08776485192343554,
+ "il_peak": 0.20435007352884557,
  "ilim_trips": 0,
  "t_ccm": 0.0010019999999999999,
  "final_mode": 2,
- "v_final": 1.7983418406355616,
+ "v_final": 1.7971137661155847,
  "scoreboard_periods": 1600,
  "scoreboard_mismatches": 0,
  "source": "tb/test_buck_ctrl.py::test_startup (cocotb, Icarus Verilog)"

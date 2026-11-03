@@ -7,7 +7,7 @@
   4
  ],
  "dcm_overload_exit_periods": 5,
- "scoreboard_periods": 4573,
+ "scoreboard_periods": 4567,
  "scoreboard_mismatches": 0,
  "source": "tb/test_buck_ctrl.py::test_mode_transitions (cocotb, Icarus Verilog)"
 }

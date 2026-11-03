@@ -1,0 +1,25 @@
+* DPWM fine stage (1.8 V, hd cells): uncalibrated delay line + 8:1 tap mux + SR latch.
+*   pwm_set (one clock pulse at cycle 0) sets the latch: HS on.
+*   pwm_rst (one clock pulse at cycle "coarse") enters the delay line; the tap chosen by
+*   fine_sel resets the latch fine_sel taps later: HS off. ton = coarse*Tclk + fine*tap + offset.
+* Tap = dt_tap (5 x dlygate4sd3_1, deadtime.spice), about 1.8 ns at tt against the ideal 1.953 ns.
+.subckt dpwm_fine pwm_set pwm_rst s0 s1 s2 hs_pwm vdd vss
+XT1 pwm_rst d1 vdd vss dt_tap
+XT2 d1 d2 vdd vss dt_tap
+XT3 d2 d3 vdd vss dt_tap
+XT4 d3 d4 vdd vss dt_tap
+XT5 d4 d5 vdd vss dt_tap
+XT6 d5 d6 vdd vss dt_tap
+XT7 d6 d7 vdd vss dt_tap
+* 8:1 mux (sel = s2 s1 s0)
+XM0 pwm_rst d1 s0 vss vss vdd vdd m01 sky130_fd_sc_hd__mux2_1
+XM1 d2 d3 s0 vss vss vdd vdd m23 sky130_fd_sc_hd__mux2_1
+XM2 d4 d5 s0 vss vss vdd vdd m45 sky130_fd_sc_hd__mux2_1
+XM3 d6 d7 s0 vss vss vdd vdd m67 sky130_fd_sc_hd__mux2_1
+XM4 m01 m23 s1 vss vss vdd vdd m03 sky130_fd_sc_hd__mux2_1
+XM5 m45 m67 s1 vss vss vdd vdd m47 sky130_fd_sc_hd__mux2_1
+XM6 m03 m47 s2 vss vss vdd vdd rst_d sky130_fd_sc_hd__mux2_1
+* NOR SR latch: S = pwm_set, R = rst_d
+XL1 rst_d qb vss vss vdd vdd hs_pwm sky130_fd_sc_hd__nor2_1
+XL2 pwm_set hs_pwm vss vss vdd vdd qb sky130_fd_sc_hd__nor2_1
+.ends

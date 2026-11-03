@@ -1256,5 +1256,453 @@
    "kind": "formal",
    "source": "formal/buck_ctrl.sby (status file)"
   }
+ },
+ "phase3": {
+  "fet_ron_mm_n_tt": {
+   "value": 2.03259,
+   "unit": "ohm*mm",
+   "kind": "sim",
+   "source": "results/phase3/fet.json (scripts/char_fet.py)"
+  },
+  "fet_ron_mm_p_tt": {
+   "value": 6.45591,
+   "unit": "ohm*mm",
+   "kind": "sim",
+   "source": "results/phase3/fet.json (scripts/char_fet.py)"
+  },
+  "fet_ron_mm_n_range": {
+   "value": [
+    1.34206,
+    3.53166
+   ],
+   "unit": "ohm*mm",
+   "kind": "sim",
+   "source": "results/phase3/fet.json (scripts/char_fet.py)",
+   "note": "45 PVT points"
+  },
+  "fet_ron_mm_p_range": {
+   "value": [
+    4.19473,
+    10.6037
+   ],
+   "unit": "ohm*mm",
+   "kind": "sim",
+   "source": "results/phase3/fet.json (scripts/char_fet.py)"
+  },
+  "fet_qg_mm_tt": {
+   "value": {
+    "n": 5.27581e-12,
+    "p": 4.41571e-12
+   },
+   "unit": "C/mm",
+   "kind": "sim",
+   "source": "results/phase3/fet.json (scripts/char_fet.py)"
+  },
+  "fet_qoss_mm_tt": {
+   "value": {
+    "n": 1.03444e-12,
+    "p": 1.04405e-12
+   },
+   "unit": "C/mm",
+   "kind": "sim",
+   "source": "results/phase3/fet.json (scripts/char_fet.py)"
+  },
+  "fet_body_diode_vf_tt": {
+   "value": 0.7594017,
+   "unit": "V",
+   "kind": "sim",
+   "source": "results/phase3/fet.json (scripts/char_fet.py)",
+   "note": "150 mA per mm"
+  },
+  "power_w_hs": {
+   "value": 19.200000000000003,
+   "unit": "mm",
+   "kind": "analysis",
+   "source": "results/phase3/sizing.json (scripts/size_power.py)"
+  },
+  "power_w_ls": {
+   "value": 8.8,
+   "unit": "mm",
+   "kind": "analysis",
+   "source": "results/phase3/sizing.json (scripts/size_power.py)"
+  },
+  "power_ron_hs_tt": {
+   "value": 0.33624531249999995,
+   "unit": "ohm",
+   "kind": "analysis",
+   "source": "results/phase3/sizing.json (scripts/size_power.py)"
+  },
+  "power_ron_ls_tt": {
+   "value": 0.23097613636363634,
+   "unit": "ohm",
+   "kind": "analysis",
+   "source": "results/phase3/sizing.json (scripts/size_power.py)"
+  },
+  "sizing_mean_eff_model": {
+   "value": 0.9632602324327287,
+   "unit": "-",
+   "kind": "analysis",
+   "source": "results/phase3/sizing.json (scripts/size_power.py)",
+   "note": "loss model only; no controller/comparator power"
+  },
+  "sizing_sensitivity": {
+   "value": {
+    "x0.5": 0.9580849703047362,
+    "x0.75": 0.9625244791661911,
+    "x1.0": 0.9632602324327287,
+    "x1.5": 0.9610417692907166,
+    "x2.0": 0.9570466235470443
+   },
+   "unit": "-",
+   "kind": "analysis",
+   "source": "results/phase3/sizing.json (scripts/size_power.py)"
+  },
+  "drv_hs_on_dly_range": {
+   "value": [
+    1.50171e-09,
+    3.79537e-09
+   ],
+   "unit": "s",
+   "kind": "sim",
+   "source": "results/phase3/powerstage.json (scripts/char_powerstage.py)"
+  },
+  "drv_hs_off_dly_range": {
+   "value": [
+    1.06411e-09,
+    2.36994e-09
+   ],
+   "unit": "s",
+   "kind": "sim",
+   "source": "results/phase3/powerstage.json (scripts/char_powerstage.py)"
+  },
+  "drv_ls_on_dly_range": {
+   "value": [
+    1.33931e-09,
+    3.3572e-09
+   ],
+   "unit": "s",
+   "kind": "sim",
+   "source": "results/phase3/powerstage.json (scripts/char_powerstage.py)"
+  },
+  "drv_ls_off_dly_range": {
+   "value": [
+    8.57334e-10,
+    1.8685e-09
+   ],
+   "unit": "s",
+   "kind": "sim",
+   "source": "results/phase3/powerstage.json (scripts/char_powerstage.py)"
+  },
+  "drv_hs_fall_range": {
+   "value": [
+    8.07568e-10,
+    1.9182e-09
+   ],
+   "unit": "s",
+   "kind": "sim",
+   "source": "results/phase3/powerstage.json (scripts/char_powerstage.py)"
+  },
+  "drv_hs_rise_range": {
+   "value": [
+    6.12846e-10,
+    1.59342e-09
+   ],
+   "unit": "s",
+   "kind": "sim",
+   "source": "results/phase3/powerstage.json (scripts/char_powerstage.py)"
+  },
+  "drv_ls_rise_range": {
+   "value": [
+    5.85e-10,
+    1.33072e-09
+   ],
+   "unit": "s",
+   "kind": "sim",
+   "source": "results/phase3/powerstage.json (scripts/char_powerstage.py)"
+  },
+  "drv_ls_fall_range": {
+   "value": [
+    2.66753e-10,
+    5.45483e-10
+   ],
+   "unit": "s",
+   "kind": "sim",
+   "source": "results/phase3/powerstage.json (scripts/char_powerstage.py)"
+  },
+  "ls_gate_dvdt_bump_max": {
+   "value": 0.424184,
+   "unit": "V",
+   "kind": "sim",
+   "source": "results/phase3/powerstage.json (scripts/char_powerstage.py)",
+   "note": "LS gate while HS turns on"
+  },
+  "hs_gate_disturb_max": {
+   "value": 0.00215653,
+   "unit": "V",
+   "kind": "sim",
+   "source": "results/phase3/powerstage.json (scripts/char_powerstage.py)",
+   "note": "HS Vsg while off"
+  },
+  "sw_dvdt_max": {
+   "value": 21902100000.0,
+   "unit": "V/s",
+   "kind": "sim",
+   "source": "results/phase3/powerstage.json (scripts/char_powerstage.py)"
+  },
+  "loss_compare": {
+   "value": [
+    {
+     "io": 0.01,
+     "fet_sim": 0.000325897,
+     "fet_model": 0.0003606708162549859,
+     "gate_sim": 0.0005426351,
+     "gate_model": 0.000577318544,
+     "t_bd": 2.6682566666666667e-08
+    },
+    {
+     "io": 0.025,
+     "fet_sim": 0.000756782,
+     "fet_model": 0.0009091257028289631,
+     "gate_sim": 0.00054218609,
+     "gate_model": 0.000577318544,
+     "t_bd": 2.8969966666666664e-08
+    },
+    {
+     "io": 0.05,
+     "fet_sim": 0.001775185,
+     "fet_model": 0.002119297784649527,
+     "gate_sim": 0.0005416590900000001,
+     "gate_model": 0.000577318544,
+     "t_bd": 2.990743333333333e-08
+    },
+    {
+     "io": 0.1,
+     "fet_sim": 0.00490992,
+     "fet_model": 0.005634467111610503,
+     "gate_sim": 0.00054079813,
+     "gate_model": 0.000577318544,
+     "t_bd": 3.04461e-08
+    },
+    {
+     "io": 0.15,
+     "fet_sim": 0.00951041,
+     "fet_model": 0.010602316999530518,
+     "gate_sim": 0.00054002113,
+     "gate_model": 0.000577318544,
+     "t_bd": 3.055846666666667e-08
+    }
+   ],
+   "unit": "W",
+   "kind": "sim",
+   "source": "results/phase3/powerstage.json (scripts/char_powerstage.py)",
+   "note": "constant inductor current, tt/27C/3.3V, ideal 1.8 V commands with 10 ns logic dead time"
+  },
+  "delaycells": {
+   "value": {
+    "buf_1": {
+     "tt": 5.0373e-11,
+     "min": 3.1555625e-11,
+     "max": 1.10624125e-10,
+     "max_over_min": 3.505686387133831
+    },
+    "clkdlybuf4s15_1": {
+     "tt": 1.031785e-10,
+     "min": 6.5093375e-11,
+     "max": 2.17028625e-10,
+     "max_over_min": 3.3341123424618866
+    },
+    "clkdlybuf4s50_1": {
+     "tt": 3.299475e-10,
+     "min": 2.136655e-10,
+     "max": 6.40825e-10,
+     "max_over_min": 2.999197343511236
+    },
+    "dlygate4sd1_1": {
+     "tt": 1.13562375e-10,
+     "min": 7.172850000000001e-11,
+     "max": 2.39482125e-10,
+     "max_over_min": 3.3387304209623783
+    },
+    "dlygate4sd3_1": {
+     "tt": 3.637375e-10,
+     "min": 2.4437187500000003e-10,
+     "max": 6.9762125e-10,
+     "max_over_min": 2.8547526183199268
+    },
+    "dlymetal6s2s_1": {
+     "tt": 6.825262500000001e-11,
+     "min": 4.2890374999999997e-11,
+     "max": 1.442275e-10,
+     "max_over_min": 3.362700839057714
+    }
+   },
+   "unit": "s",
+   "kind": "sim",
+   "source": "results/phase3/delaycells.json (scripts/char_delaycells.py)"
+  },
+  "dpwm_uncal_tap_scale_range": {
+   "value": [
+    0.6394453333333334,
+    1.7305685333333332
+   ],
+   "unit": "-",
+   "kind": "sim",
+   "source": "results/phase3/dpwm.json (scripts/char_dpwm.py)"
+  },
+  "dpwm_uncal_dnl_range": {
+   "value": [
+    -5.122060799999997,
+    2.5103744
+   ],
+   "unit": "LSB",
+   "kind": "sim",
+   "source": "results/phase3/dpwm.json (scripts/char_dpwm.py)"
+  },
+  "dpwm_uncal_inl_range": {
+   "value": [
+    -2.5103744,
+    5.122060799999998
+   ],
+   "unit": "LSB",
+   "kind": "sim",
+   "source": "results/phase3/dpwm.json (scripts/char_dpwm.py)"
+  },
+  "cmp_all_decisions_correct": {
+   "value": false,
+   "unit": "-",
+   "kind": "sim",
+   "source": "results/phase3/comparator.json (scripts/char_comparator.py)",
+   "note": "1 mV and 10 mV, 45 PVT"
+  },
+  "cmp_delay_1mV_max": {
+   "value": 1.05308e-07,
+   "unit": "s",
+   "kind": "sim",
+   "source": "results/phase3/comparator.json (scripts/char_comparator.py)"
+  },
+  "cmp_offset_stats": {
+   "value": {
+    "0.33": {
+     "n_multiple_flips": 0,
+     "n": 100,
+     "mean": 3.5000000000000844e-05,
+     "sigma": 0.0034795615362928256,
+     "min": -0.0072499999999999995,
+     "max": 0.00775,
+     "n_missing": 0
+    },
+    "0.6": {
+     "n_multiple_flips": 0,
+     "n": 100,
+     "mean": 0.0001900000000000007,
+     "sigma": 0.0018752508249739973,
+     "min": -0.0037500000000000016,
+     "max": 0.0047500000000000025,
+     "n_missing": 0
+    },
+    "0.83": {
+     "n": 0,
+     "failed": true,
+     "n_multiple_flips": 0,
+     "note": "decisions not monotonic in the input ramp: comparator does not work at this CM"
+    },
+    "-0.1": {
+     "n": 5,
+     "failed": true,
+     "n_multiple_flips": 88,
+     "note": "decisions not monotonic in the input ramp: comparator does not work at this CM"
+    }
+   },
+   "unit": "V",
+   "kind": "sim",
+   "source": "results/phase3/comparator.json (scripts/char_comparator.py)",
+   "note": "100 MC per input common mode, tt 27 C"
+  },
+  "levelshift_lv2hv_rise_range": {
+   "value": [
+    5.92217e-10,
+    1.71096e-09
+   ],
+   "unit": "s",
+   "kind": "sim",
+   "source": "results/phase3/levelshift.json (scripts/char_levelshift.py)"
+  },
+  "levelshift_lv2hv_fall_range": {
+   "value": [
+    2.68313e-10,
+    5.24807e-10
+   ],
+   "unit": "s",
+   "kind": "sim",
+   "source": "results/phase3/levelshift.json (scripts/char_levelshift.py)"
+  },
+  "levelshift_hv2lv_rise_range": {
+   "value": [
+    2.16901e-10,
+    6.73421e-10
+   ],
+   "unit": "s",
+   "kind": "sim",
+   "source": "results/phase3/levelshift.json (scripts/char_levelshift.py)"
+  },
+  "levelshift_hv2lv_fall_range": {
+   "value": [
+    2.82308e-10,
+    7.0533e-10
+   ],
+   "unit": "s",
+   "kind": "sim",
+   "source": "results/phase3/levelshift.json (scripts/char_levelshift.py)"
+  },
+  "adcref_threshold_sigma_lsb": {
+   "value": {
+    "100": 0.08358495291379334,
+    "180": 0.07807768964759851,
+    "250": 0.03757790326317688
+   },
+   "unit": "LSB",
+   "kind": "sim",
+   "source": "results/phase3/adcref.json (scripts/char_adcref.py)"
+  },
+  "adcref_spacing_sigma_lsb": {
+   "value": {
+    "100": 0.010673056058255024,
+    "180": 0.010731373678202049,
+    "250": 0.010929658453165472
+   },
+   "unit": "LSB",
+   "kind": "sim",
+   "source": "results/phase3/adcref.json (scripts/char_adcref.py)"
+  },
+  "divider_ratio_sigma_rel": {
+   "value": 0.0027566001510574696,
+   "unit": "-",
+   "kind": "sim",
+   "source": "results/phase3/adcref.json (scripts/char_adcref.py)"
+  },
+  "xschem_vs_spice_lvs": {
+   "value": {
+    "adc_div": true,
+    "adc_string": true,
+    "cmp_hv": true,
+    "cmp_sa": true,
+    "deadtime_gen": true,
+    "dpwm_cal": true,
+    "dpwm_fine": true,
+    "drv_hs": true,
+    "drv_ls": true,
+    "dt_prog": true,
+    "dt_stage": true,
+    "dt_tap": true,
+    "gate_sense": true,
+    "power_fets": true,
+    "sw_cmp": true,
+    "sw_sense": true,
+    "tdc_line": true
+   },
+   "unit": "-",
+   "kind": "lvs",
+   "source": "results/phase3/lvs_xschem/*.txt (scripts/lvs_xschem.sh, netgen)"
+  }
  }
 }

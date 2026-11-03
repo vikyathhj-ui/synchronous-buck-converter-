@@ -1,0 +1,14 @@
+** sch_path: /foss/projects/synchronous-buck-converter-/xschem/inv_hv.sch
+**.subckt inv_hv in out vdd vss
+*.iopin in
+*.iopin out
+*.iopin vdd
+*.iopin vss
+XXP out in vdd vdd sky130_fd_pr__pfet_g5v0d10v5 L=0.5 W={wp nf=1 ad='int((@nf + 1)/2) * {wp / @nf * 0.29' as='int((@nf + 2)/2) * {wp
++ / @nf * 0.29' pd='2*int((@nf + 1)/2) * ({wp / @nf + 0.29)' ps='2*int((@nf + 2)/2) * ({wp / @nf + 0.29)' nrd='0.29 / {wp ' nrs='0.29 / {wp
++ ' sa=0 sb=0 sd=0 mult=1
+XXN out in vss vss sky130_fd_pr__nfet_g5v0d10v5 L=0.5 W={wn nf=1 ad='int((@nf + 1)/2) * {wn / @nf * 0.29' as='int((@nf + 2)/2) * {wn / @nf * 0.29'
++ pd='2*int((@nf + 1)/2) * ({wn / @nf + 0.29)' ps='2*int((@nf + 2)/2) * ({wn / @nf + 0.29)' nrd='0.29 / {wn ' nrs='0.29 / {wn ' sa=0
++ sb=0 sd=0 mult=1
+**.ends
+.end

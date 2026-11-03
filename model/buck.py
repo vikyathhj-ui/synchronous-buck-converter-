@@ -111,6 +111,8 @@ class Dpwm:
     coarse_bits: int = 6
     fine_bits: int = 3
     tap_scale: float = 1.0
+    fine_table: tuple = None   # measured fine delays [s] for codes 0..7 (relative to code 0), optional
+    t_elem: float = None       # calibrated mode: main/replica delay-element delay [s] (tap_sel x t_elem)
 
     @property
     def bits(self):
@@ -124,7 +126,24 @@ class Dpwm:
         tclk = 1.0 / self.fclk
         c = code >> self.fine_bits
         f = code & ((1 << self.fine_bits) - 1)
+        if self.fine_table is not None:
+            return c * tclk + self.fine_table[f]
         return c * tclk + f * tclk / (1 << self.fine_bits) * self.tap_scale
+
+    def n_meas(self):
+        """TDC count for the calibrated mode: elements passed in one clock period (max 72)."""
+        return min(72, int((1.0 / self.fclk) // self.t_elem))
+
+    def fine_delay(self, fine, tap_sel=None):
+        """Fine part of ton [s]: calibrated (tap_sel x t_elem), measured table, or ideal taps."""
+        if self.t_elem is not None:
+            return tap_sel * self.t_elem
+        if self.fine_table is not None:
+            return self.fine_table[fine]
+        return fine / self.fclk / (1 << self.fine_bits) * self.tap_scale
+
+    def ton_cal(self, code, tap_sel):
+        return (code >> self.fine_bits) / self.fclk + self.fine_delay(code & 7, tap_sel)
 
     def lsb_out(self, vin):
         """Output-referred DPWM LSB [V] (ideal taps)."""
@@ -243,13 +262,14 @@ class ClockPlant:
         if not self.hs and not ls and self.x[0] < 0:
             self.x[0] = 0.0
 
-    def clock(self, pwm_set, pwm_rst, fine, ls_en, vin, io):
-        """Advance one clock period with the controls that are in force during this cycle."""
+    def clock(self, pwm_set, pwm_rst, fine_delay, ls_en, vin, io):
+        """Advance one clock period with the controls that are in force during this cycle.
+        fine_delay [s]: HS turn-off delay after the pwm_rst edge (delay line + selected tap)."""
         self._ls = bool(ls_en)
         if pwm_set:
             self.hs = True
         if pwm_rst:
-            self.off_in = fine * self.tap
+            self.off_in = fine_delay
         if self.hs and self.off_in is not None:
             if self.off_in <= self.tclk:
                 t1 = self.off_in

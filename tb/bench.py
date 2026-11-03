@@ -2,11 +2,15 @@
 
 Every clock (at the falling edge, when the RTL outputs for that cycle are stable):
   * the plant (model/buck.py: ClockPlant) is advanced by one clock with the RTL's pwm_set,
-    pwm_rst, fine_sel and ls_en;
+    pwm_rst, tap_sel (x t_elem) and ls_en;
   * the comparators are driven from the plant state at that cycle's rising edge:
     window ADC (cycle 0), valley current limit (cycle 63), zero-cross (every cycle).
-Every period the scoreboard runs model/ctrl_ref.py: CtrlRef with the same ADC code, trip and
-zero-cross history and checks, bit for bit: mode, HS enable, LS enable, coarse/fine duty, VREF code.
+Every period the scoreboard runs model/ctrl_ref.py: CtrlRef with the same ADC code, trip,
+zero-cross history and TDC count and checks, bit for bit: mode, HS enable, LS enable, coarse duty,
+delay-line tap, VREF code.
+Delay line: element delay t_elem (default Tclk/40, which gives the ideal 1.953 ns fine step); the
+replica-line TDC is driven with N = floor(Tclk / t_elem) ones; the HS turns off tap_sel * t_elem
+after the pwm_rst edge. set_t_elem() changes it during a run (temperature drift).
 """
 import numpy as np
 from cocotb.clock import Clock
@@ -18,7 +22,7 @@ from model.ctrl_ref import CtrlRef, Regs, therm_decode, therm_encode
 from model.sim import ADC_LSB, ILIM_LSB, VREF_LSB
 
 TCLK_NS = 15.625
-ADDR = dict(ctrl=0x00, vref=0x04, kp=0x08, ki=0x0C, kd=0x10, dt=0x14, ilim=0x18, ss_len=0x1C,
+ADDR = dict(ctrl=0x00, vref=0x04, kp=0x08, ki=0x0C, kd=0x10, dt=0x14, ilim=0x18, ss_len=0x1C, cal=0x30,
             dmax=0x20, fault_n=0x24, status=0x28, id=0x2C)
 # DCM -> FAULT is unreachable: the valley current is 0 in DCM, so the limit cannot trip (DECISIONS D18)
 TRANSITIONS = [(0, 1), (1, 2), (2, 3), (3, 2), (1, 4), (2, 4), (4, 1), (1, 0), (2, 0), (3, 0), (4, 0)]
@@ -39,10 +43,11 @@ def sample_coverage(s):
 
 
 class Bench:
-    def __init__(self, dut, buck, dpwm=None, io_fn=None, vin_fn=None, dense_from=None, dense_to=None):
+    def __init__(self, dut, buck, dpwm=None, io_fn=None, vin_fn=None, dense_from=None, dense_to=None,
+                 t_elem=None):
         self.dut = dut
         self.b = buck
-        self.dpwm = dpwm or Dpwm()
+        self.dpwm = dpwm or Dpwm(t_elem=t_elem if t_elem is not None else TCLK_NS * 1e-9 / 40)
         self.plant = ClockPlant(buck, self.dpwm)
         self.ref = CtrlRef(Regs())
         self.io_fn = io_fn or (lambda t: 0.0)
@@ -56,6 +61,7 @@ class Bench:
         self.prev_mode = 0
         self.writes = []
         self.mismatches = []
+        self.n_prev = self.dpwm.n_meas()
         self.rec = {k: [] for k in ("t", "v", "e", "duty", "mode", "trip", "vref", "ilv", "ilp", "ilmin",
                                     "vmin", "vmax", "zc", "cut_cycle")}
         self.dense = []
@@ -72,6 +78,7 @@ class Bench:
         Clock(d.clk, TCLK_NS, unit="ns").start()
         for n in ("psel", "penable", "pwrite", "paddr", "pwdata", "adc_therm", "ilim_cmp", "zc_cmp"):
             self._set(n, 0)
+        self._set("tdc_therm", (1 << self.dpwm.n_meas()) - 1)
         d.rst_n.value = 0
         await ClockCycles(d.clk, 5)
         await FallingEdge(d.clk)
@@ -81,6 +88,11 @@ class Bench:
             await FallingEdge(d.clk)
             if int(d.adc_sample.value):
                 break
+
+    def set_t_elem(self, t_elem):
+        """Change the delay-element delay (both lines); the TDC sees it from the next cycle 40."""
+        from dataclasses import replace as _r
+        self.dpwm = _r(self.dpwm, t_elem=t_elem)
 
     def write(self, name, value):
         """Queue an APB write; it is issued in cycles 8..10 of the next period and mirrored into
@@ -117,12 +129,13 @@ class Bench:
         therm = therm_encode(self.vref_dac * VREF_LSB - v, ADC_LSB)
         self._set("adc_therm", therm)
         e = therm_decode(therm)
-        out = ref.period(e, self.trip, self.zc_prev)
+        out = ref.period(e, self.trip, self.zc_prev, self.n_prev)
 
         mode_rtl = int(d.mode.value)
         set_rtl = int(d.pwm_set.value)
         exp_coarse = out["duty"] >> 3 if out["hs_en"] else None
         exp_fine = out["duty"] & 7 if out["hs_en"] else None
+        exp_tap = out["tap_sel"] if out["hs_en"] else None
         coarse_eff = exp_coarse if out["hs_en"] else 0
         errs = []
         if mode_rtl != out["mode"]:
@@ -143,11 +156,12 @@ class Bench:
             lsen = int(d.ls_en.value)
             if c == 0 and lsen != int(out["ls_en"]):
                 errs.append(f"ls_en rtl={lsen} ref={int(out['ls_en'])}")
-            fine = 0
+            fdel = 0.0
             if prst:
-                fine = int(d.fine_sel.value)
+                tap = int(d.tap_sel.value)
+                fdel = tap * self.dpwm.t_elem
                 if coarse_obs is None:
-                    coarse_obs, fine_obs = c, fine
+                    coarse_obs, fine_obs = c, tap
             if out["dcm"] and cut_cycle is None and c > 0 and not lsen:
                 cut_cycle = c
             # zero-cross comparator: VSW > 0 while the LS conducts means iL < 0
@@ -173,7 +187,10 @@ class Bench:
                     self._set("pwrite", 0)
             if c == 12:
                 vref_rtl = int(d.vref_code.value)
-            p.clock(set_rtl if c == 0 else 0, prst, fine, lsen, vin, io)
+            if c == 40:
+                n_now = self.dpwm.n_meas()
+                self._set("tdc_therm", (1 << n_now) - 1)
+            p.clock(set_rtl if c == 0 else 0, prst, fdel, lsen, vin, io)
             vc = p.vout(io)
             vmin, vmax = min(vmin, vc), max(vmax, vc)
             ilp, ilmin = max(ilp, p.il), min(ilmin, p.il)
@@ -182,8 +199,8 @@ class Bench:
             await FallingEdge(d.clk)
 
         if out["hs_en"]:
-            if (coarse_obs, fine_obs) != (exp_coarse, exp_fine):
-                errs.append(f"duty rtl=({coarse_obs},{fine_obs}) ref=({exp_coarse},{exp_fine})")
+            if (coarse_obs, fine_obs) != (exp_coarse, exp_tap):
+                errs.append(f"duty/tap rtl=({coarse_obs},{fine_obs}) ref=({exp_coarse},{exp_tap})")
         elif coarse_obs is not None:
             errs.append(f"pwm_rst while HS disabled (cycle {coarse_obs})")
         if vref_rtl != out["vref_code"]:
@@ -196,6 +213,7 @@ class Bench:
         if write is not None:
             self._apply_model_write(*write)
         self.trip = ilv > self.ref.regs.ilim * ILIM_LSB
+        self.n_prev = n_now
         self.zc_prev = zc_seen
         self.vref_dac = vref_rtl
 

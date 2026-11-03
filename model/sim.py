@@ -40,7 +40,7 @@ def _regs(regs):
 
 
 def simulate(buck, dpwm, regs=None, n=1000, frac=FRAC, io_fn=None, vin_fn=None,
-             dense_from=None, dense_to=None, nsub=8):
+             dense_from=None, dense_to=None, nsub=8, adc_offsets=None):
     io_fn = io_fn or (lambda t: 0.0)
     vin_fn = vin_fn or (lambda t: buck.vin)
     regs = _regs(regs)
@@ -55,9 +55,14 @@ def simulate(buck, dpwm, regs=None, n=1000, frac=FRAC, io_fn=None, vin_fn=None,
         io, vin = io_fn(t), vin_fn(t)
         trip = ilv > regs.ilim * ILIM_LSB
         v = plant.vout(io)
-        e = therm_decode(therm_encode(vref_dac * VREF_LSB - v, ADC_LSB))
-        out = ctrl.period(e, trip, False)
-        ton = dpwm.ton(out["duty"]) if out["hs_en"] else 0.0
+        e = therm_decode(therm_encode(vref_dac * VREF_LSB - v, ADC_LSB, adc_offsets))
+        out = ctrl.period(e, trip, False, dpwm.n_meas() if dpwm.t_elem else None)
+        if not out["hs_en"]:
+            ton = 0.0
+        elif dpwm.t_elem:
+            ton = dpwm.ton_cal(out["duty"], out["tap_sel"])
+        else:
+            ton = dpwm.ton(out["duty"])
         want = dense_from is not None and dense_from <= t < dense_to
         ipk, ilv_new, dl = plant.period(ton, io, vin, t0=t, nsub=nsub if want else 0,
                                         t_pre=tclk, ls=out["ls_en"], tclk=tclk)
@@ -90,10 +95,11 @@ def simulate_clocked(buck, dpwm, regs=None, n=1000, frac=FRAC, io_fn=None, vin_f
         io, vin = io_fn(t), vin_fn(t)
         v = plant.vout(io)
         e = therm_decode(therm_encode(vref_dac * VREF_LSB - v, ADC_LSB))
-        out = ctrl.period(e, trip, zc_prev)
+        out = ctrl.period(e, trip, zc_prev, dpwm.n_meas() if dpwm.t_elem else None)
         hs = out["hs_en"]
         coarse = out["duty"] >> dpwm.fine_bits if hs else 0
         fine = out["duty"] & ((1 << dpwm.fine_bits) - 1) if hs else 0
+        fdel = dpwm.fine_delay(fine, out["tap_sel"])
         ls_cut, zc_seen, ilp, ilv, imin = False, False, 0.0, 0.0, 1e9
         for c in range(nclk):
             ls_en = out["ls_en"] and not ls_cut
@@ -104,7 +110,7 @@ def simulate_clocked(buck, dpwm, regs=None, n=1000, frac=FRAC, io_fn=None, vin_f
                 cut_next = out["dcm"]
             if c == nclk - 1:
                 ilv = plant.il
-            plant.clock(hs and c == 0, hs and c == coarse, fine, ls_en, vin, io)
+            plant.clock(hs and c == 0, hs and c == coarse, fdel, ls_en, vin, io)
             ilp = max(ilp, plant.il)
             imin = min(imin, plant.il)
             if keep_il:

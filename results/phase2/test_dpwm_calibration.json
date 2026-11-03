@@ -1,0 +1,13 @@
+{
+ "duty_codes_fast": [
+  286
+ ],
+ "duty_codes_slow": [
+  286
+ ],
+ "n_cal_q4_after_step": 352,
+ "n_cal_q4_after_wobble": 352,
+ "scoreboard_periods": 2664,
+ "scoreboard_mismatches": 0,
+ "source": "tb/test_buck_ctrl.py::test_dpwm_calibration (cocotb, Icarus Verilog)"
+}

@@ -1,0 +1,81 @@
+
+Circuit 1 cell sky130_fd_sc_hd__dlygate4sd3_1 and Circuit 2 cell sky130_fd_sc_hd__dlygate4sd3_1 are black boxes.
+Warning: Equate pins:  cell sky130_fd_sc_hd__dlygate4sd3_1 is a placeholder, treated as a black box.
+Warning: Equate pins:  cell sky130_fd_sc_hd__dlygate4sd3_1 is a placeholder, treated as a black box.
+
+Subcircuit pins:
+Circuit 1: sky130_fd_sc_hd__dlygate4sd3_1  |Circuit 2: sky130_fd_sc_hd__dlygate4sd3_1  
+-------------------------------------------|-------------------------------------------
+1                                          |1                                          
+2                                          |2                                          
+3                                          |3                                          
+4                                          |4                                          
+5                                          |5                                          
+6                                          |6                                          
+---------------------------------------------------------------------------------------
+Cell pin lists are equivalent.
+Device classes sky130_fd_sc_hd__dlygate4sd3_1 and sky130_fd_sc_hd__dlygate4sd3_1 are equivalent.
+
+Subcircuit summary:
+Circuit 1: dt_tap                          |Circuit 2: dt_tap                          
+-------------------------------------------|-------------------------------------------
+sky130_fd_sc_hd__dlygate4sd3_1 (5)         |sky130_fd_sc_hd__dlygate4sd3_1 (5)         
+Number of devices: 5                       |Number of devices: 5                       
+Number of nets: 8                          |Number of nets: 8                          
+---------------------------------------------------------------------------------------
+Netlists match uniquely.
+
+Subcircuit pins:
+Circuit 1: dt_tap                          |Circuit 2: dt_tap                          
+-------------------------------------------|-------------------------------------------
+vss                                        |vss                                        
+vdd                                        |vdd                                        
+in                                         |in                                         
+out                                        |out                                        
+---------------------------------------------------------------------------------------
+Cell pin lists are equivalent.
+Device classes dt_tap and dt_tap are equivalent.
+
+Circuit 1 cell sky130_fd_sc_hd__mux2_1 and Circuit 2 cell sky130_fd_sc_hd__mux2_1 are black boxes.
+Warning: Equate pins:  cell sky130_fd_sc_hd__mux2_1 is a placeholder, treated as a black box.
+Warning: Equate pins:  cell sky130_fd_sc_hd__mux2_1 is a placeholder, treated as a black box.
+
+Subcircuit pins:
+Circuit 1: sky130_fd_sc_hd__mux2_1         |Circuit 2: sky130_fd_sc_hd__mux2_1         
+-------------------------------------------|-------------------------------------------
+1                                          |1                                          
+2                                          |2                                          
+3                                          |3                                          
+4                                          |4                                          
+5                                          |5                                          
+6                                          |6                                          
+7                                          |7                                          
+8                                          |8                                          
+---------------------------------------------------------------------------------------
+Cell pin lists are equivalent.
+Device classes sky130_fd_sc_hd__mux2_1 and sky130_fd_sc_hd__mux2_1 are equivalent.
+
+Subcircuit summary:
+Circuit 1: dt_stage                        |Circuit 2: dt_stage                        
+-------------------------------------------|-------------------------------------------
+dt_tap (1)                                 |dt_tap (1)                                 
+sky130_fd_sc_hd__mux2_1 (1)                |sky130_fd_sc_hd__mux2_1 (1)                
+Number of devices: 2                       |Number of devices: 2                       
+Number of nets: 6                          |Number of nets: 6                          
+---------------------------------------------------------------------------------------
+Netlists match uniquely.
+
+Subcircuit pins:
+Circuit 1: dt_stage                        |Circuit 2: dt_stage                        
+-------------------------------------------|-------------------------------------------
+sel                                        |sel                                        
+out                                        |out                                        
+vdd                                        |vdd                                        
+vss                                        |vss                                        
+in                                         |in                                         
+---------------------------------------------------------------------------------------
+Cell pin lists are equivalent.
+Device classes dt_stage and dt_stage are equivalent.
+
+Final result: Circuits match uniquely.
+.

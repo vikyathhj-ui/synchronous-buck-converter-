@@ -6,7 +6,7 @@ import numpy as np
 
 from model.buck import Buck, Dpwm, SwitchedPlant
 from model.controller import Adc, FixedPid, closed_loop_matrix, design, margins
-from model.ctrl_ref import CCM, Regs, therm_decode, therm_encode
+from model.ctrl_ref import CCM, CtrlRef, Regs, therm_decode, therm_encode
 from model.sim import open_loop_response, simulate, simulate_clocked
 
 B, DP, ADC = Buck(), Dpwm(), Adc()
@@ -108,3 +108,34 @@ def test_clocked_and_period_sims_agree_in_ccm():
     assert np.array_equal(r1.d, r2.d)
     assert np.max(np.abs(r1.v - r2.v)) < 1e-9
     assert r1.mode[-1] == CCM
+
+
+def test_calibrated_dpwm_nominal_equals_ideal():
+    kp, ki, kd = G.ints(F)
+    b = replace(B, g_load=0.075 / 1.8)
+    r1 = simulate(b, DP, Regs(kp=kp, ki=ki, kd=kd), n=1500, frac=F)
+    r2 = simulate(b, Dpwm(t_elem=1 / 64e6 / 40), Regs(kp=kp, ki=ki, kd=kd), n=1500, frac=F)
+    assert np.array_equal(r1.d, r2.d)
+
+
+def test_calibrated_dpwm_extreme_elements_no_limit_cycle():
+    """Element delays at the measured PVT extremes of dlygate4sd3_1 (0.244 ns, 0.698 ns)."""
+    kp, ki, kd = G.ints(F)
+    for te in (0.244e-9, 0.698e-9):
+        dp = Dpwm(t_elem=te)
+        d = [dp.fine_delay(f, CtrlRef.tap_of(f, 16 * dp.n_meas())) for f in range(8)]
+        steps = [d[f + 1] - d[f] for f in range(7)] + [1 / 64e6 - (d[7] - d[0])]   # incl. coarse boundary
+        assert max(steps) * 1e6 * 3.6 < 0.010     # output step (dt * fsw * VIN) below the ADC LSB at 3.6 V
+        for io in (0.02, 0.075, 0.14):
+            r = simulate(replace(B, g_load=io / 1.8), dp, Regs(kp=kp, ki=ki, kd=kd), n=3000, frac=F)
+            assert len(np.unique(r.d[-1000:])) == 1, (te, io)
+
+
+def test_calibration_hysteresis():
+    c = CtrlRef(Regs())
+    for k in range(16 * 4):
+        c.calibrate(40 + (k % 2))               # 40/41 alternating: mean 40.5 -> sum 648, |648-640| = 8, no update
+    assert c.n_cal_q4 == 640
+    for _ in range(16):
+        c.calibrate(30)
+    assert c.n_cal_q4 == 480
