@@ -47,8 +47,20 @@ Done (results in results/phase3/*.json, DECISIONS D20-D30):
 - char_adc.py: ramp split into 5 segments (D29); MC DNL computed from cmp_adc MC offsets + ladder
   MC ("mcc", user decision D29).
 
+ADC PVT with cmp_adc ran 2026-11-03 (results/phase3/adc.json "pvt", 64 min at 5 workers):
+tt 27 C and ff 125 C / 3.6 V correct (threshold error 0 within the +/-0.025 LSB ramp resolution,
+0 missing codes). ff/ss/sf/fs 27 C and ss -40 C: every real flip is at the ideal position, plus
+scattered single wrong decisions 25-50+ mV from any threshold, and some overlap mismatches
+(history dependent). A single cmp_adc decides cleanly at every corner (no SR-latch race: loser
+output max 0.65 V, latch inputs stay > 1.7 V).
+PAUSED HERE (user). Next step: test whether the 5 ns max step causes them. Re-run ff 27 segment 0
+at 2 ns and 1 ns and count wrong decisions (diagnostic scripts are in results/phase3/work/_*.py,
+git-ignored; `_segstep.py ff 27 3.3 0 5n,2n,1n`). If 1 ns is clean, lower TMAX in char_adc.py and
+char_comparator.py (and re-check the run time); if not, look for coupling between the 15 comparators
+(shared pb bias, VOUT/2 node).
+
 Remaining (cd scripts; export SPICE_REUSE=1 SPICE_WORKERS=5):
-  python3 char_adc.py pvt             # was running at the WIP commit (35 segments, cmp_adc)
+  python3 char_adc.py pvt             # again, after the step-size question is settled
   python3 char_comparator.py all      # cmp_adc: 45 PVT + 300 MC (old logs are cmp_hv, will re-run)
   python3 char_adc.py mcc             # needs the new comparator.json
   python3 loop_impact.py; python3 collect_phase3.py; python3 update_docs.py
