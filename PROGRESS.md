@@ -53,11 +53,13 @@ tt 27 C and ff 125 C / 3.6 V correct (threshold error 0 within the +/-0.025 LSB 
 scattered single wrong decisions 25-50+ mV from any threshold, and some overlap mismatches
 (history dependent). A single cmp_adc decides cleanly at every corner (no SR-latch race: loser
 output max 0.65 V, latch inputs stay > 1.7 V).
-PAUSED HERE (user). Next step: test whether the 5 ns max step causes them. Re-run ff 27 segment 0
-at 2 ns and 1 ns and count wrong decisions (diagnostic scripts are in results/phase3/work/_*.py,
-git-ignored; `_segstep.py ff 27 3.3 0 5n,2n,1n`). If 1 ns is clean, lower TMAX in char_adc.py and
-char_comparator.py (and re-check the run time); if not, look for coupling between the 15 comparators
-(shared pb bias, VOUT/2 node).
+PAUSED HERE (user, 2026-11-07). Cause found: NOT the step size (ff 27 seg 0: 8 / 5 / 5 wrong at
+5 / 2 / 1 ns, at different places). Waveform dump (results/phase3/work/_probe.py) showed the
+cmp_hv output SR latch flipping inside one 0.55 ns step when the winning output is released at
+reset, with trapezoidal ringing before it: a numerical artifact. With `.option method=gear`:
+ff 27 seg 0 0 wrong (was 8), fs 27 seg 0 0 wrong (was 42), same 40-decision window 0 (was 1).
+Next: add method=gear to the char_adc.py and char_comparator.py netlists (write D31; consider
+whether char_swcmp / DPWM latches need the same check), then re-run char_adc.py pvt (~65 min).
 
 Remaining (cd scripts; export SPICE_REUSE=1 SPICE_WORKERS=5):
   python3 char_adc.py pvt             # again, after the step-size question is settled
